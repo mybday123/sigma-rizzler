@@ -5,7 +5,7 @@ NAME = sigma
 
 all: build
 
-build: sigma_rizzler
+build: 
 	$(CC) $(CFLAGS) $(SRC) -o $(NAME)
 
 clean:
