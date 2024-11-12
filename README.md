@@ -11,7 +11,7 @@ A simple game about Sigma and Rizz. It's about as brainrot as you can think.
     ```
     $ make
     ```
-    If you want to compile on a different operating system, you can append `CC=<yourcompiler>`, for example:
+    If you want to compile on a different operating system, you can append `CC=<yourcompiler>` to `make`. For example, compiling to Windows using MinGW:
     ```
     $ make CC=x86_64-w64-mingw32-gcc
     ```
