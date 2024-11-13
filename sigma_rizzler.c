@@ -10,7 +10,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-////////////////////////////////////////////////
+
+#define CLEAR_SCREEN_REGEX "\e[1;1H\e[2J"
 
 // Struct of person and enemy section
 typedef struct
@@ -27,8 +28,6 @@ typedef struct
     char name[100];
     int health;
 } Enemy;
-
-//////////////////////////////////////////////
 
 void generateEnemy()
 {
@@ -96,7 +95,7 @@ void getPlayerName()
             printf("Hey, you're more skibidii than i think, so i need your name!\n");
             break;
         case 3:
-            printf("HEYY, I NEED YOUR NAME PLEASE ??!?!\n");
+            printf("HEYY, I NEED YOUR NAME PLEASE \?\?!\?!\n");
             break;
         default:
             printf("To be honest, i really need your name, so please!!\n");
@@ -129,10 +128,10 @@ void playGame()
     user.health = 100;
     getPlayerName();
     printf("%s", user.username);
-    // do
-    // {
-    //     playerAttack();
-    // } while (isPlayerDie != 1);
+    do
+    {
+        playerAttack();
+    } while (isPlayerDie != 1);
 }
 
 void attack(int *hp)
@@ -151,6 +150,41 @@ void heal(int *hp)
     *hp += heal;
 }
 
+int compare(const void* a, const void* b) {
+   return ((Person*)b)->score - ((Person*)a)->score;
+}
+
+void save_score(Person player){
+    FILE *fp = fopen("scoreboard.txt", "a");
+    fprintf(fp, "%s#%d\n", player.username, player.score);
+    fclose(fp);
+}
+
+void leaderboard() {
+    FILE *fp = fopen("scoreboard.save", "r");
+    if (fp == NULL) {
+        printf("Leaderboard empty. No one has played yet :(\n");
+        return;
+    }
+     
+    Person player[500]; 
+    int count = 0;
+    puts("=============================");
+    puts("|         Scoreboard        |");
+    puts("=============================");
+    puts("|   Username   |    Score   |");
+    puts("=============================");
+    while (fscanf(fp, "%[^#]#%d\n", player[count].username, &player[count].score) != EOF) {
+        count++;
+    }
+    qsort(player, count, sizeof(Person), compare);
+    for(int i = 0; i<count;i++){
+         printf("|%-14.14s|%12d|\n", player[i].username, player[i].score);
+    }
+    puts("=============================");
+    fclose(fp);
+}
+
 void printLogo()
 {
     const char *LOGO = "   _____ ____________  ______ \n"
@@ -167,6 +201,9 @@ void menu()
          "(L)eaderboard\n"
          "(Q)uit game");
 }
+void clear_screen() {
+    printf(CLEAR_SCREEN_REGEX);
+}
 
 int main()
 {
@@ -176,20 +213,25 @@ int main()
     {
         menu();
         printf("Enter your choice: ");
-        scanf(" %c", &confirmation);
-        getchar();
-        switch (tolower(confirmation))
-        {
-        case 'p': /*Play*/
-            playGame();
-            break;
-        case 'l': /*Leaderbord*/
-            break;
-        case 'q': /*Quit*/
-            return 0;
-        default:
-            puts("Invalid choice");
+        scanf(" %c", &confirmation); getchar();
+        switch (tolower(confirmation)) {
+            case 'p':
+                // Person player;
+                return 0;
+                //save_score(player);
+                break;
+            case 'l':
+                leaderboard();
+                puts("Press any key to continue...");
+                getchar();
+                break;
+            case 'q':
+                printf("Thanks for playing");
+                return 0;
+            default:
+                puts("Invalid choice!");
         }
-    } while (confirmation != 'q');
-     return 0;
+    }while(1);
+    
+    return 0;
 }
