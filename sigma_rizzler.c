@@ -1,13 +1,30 @@
 /*
  * SIGMA RIZZLER
- * 
+ *
  * A simple turn-based game about Sigma and Rizz
 */
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+void attack(int *hp){
+    srand(time(NULL));
+    int random = (rand() % 16) + 5;
+    int atk = random;
+    *hp -= atk;
+}
+
+void heal (int *hp){
+    srand(time(NULL));
+    int random = (rand() % 9) + 5;
+    int heal = random;
+    *hp += heal;
+}
+
 
 void printAuthentication()
 {
-    
+
 }
 
 void authRegister()
@@ -26,9 +43,11 @@ void printLogo()
 }
 
 int main()
-{   
+{
     printLogo();
         // do{
+        
+
 
         // }while();
     return 0;
