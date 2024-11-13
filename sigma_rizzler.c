@@ -29,8 +29,5 @@ void printLogo()
 int main()
 {   
     printLogo();
-    printf("\n(P)lay game\n"
-           "(L)eaderboard\n"
-           "(Q)uit game\n");
     return 0;
 }
