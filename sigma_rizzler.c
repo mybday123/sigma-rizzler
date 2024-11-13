@@ -2,12 +2,13 @@
  * SIGMA RIZZLER
  * 
  * A simple turn-based game about Sigma and Rizz
-*/
+ */
+
 #include <stdio.h>
 
 void printAuthentication()
 {
-    
+
 }
 
 void authRegister()
@@ -16,11 +17,11 @@ void authRegister()
 }
 void printLogo()
 {
-    const char* LOGO = "________  ______  ________  ___        ___       ___      \n"
-                       "__          __    __        ___ __  __ ___     __   __    \n"
-                       "________    __    __   ___  ___  _  _  ___    __ ___ __   \n"
-                       "      __    __    __    __  ___   __   ___   __       __  \n"
-                       "________  ______  ________  ___        ___  __         __ \n";
+    const char* LOGO = "   _____ ____________  ______ \n"
+                       "  / ___//  _/ ____/  |/  /   |\n"
+                       "  \\__ \\ / // / __/ /|_/ / /| |\n"
+                       " ___/ // // /_/ / /  / / ___ |\n"
+                       "/____/___/\\____/_/  /_/_/  |_|\n";
 
     printf(LOGO);
 }
@@ -28,8 +29,8 @@ void printLogo()
 int main()
 {   
     printLogo();
-        // do{
-
-        // }while();
+    printf("\n(P)lay game\n"
+           "(L)eaderboard\n"
+           "(Q)uit game\n");
     return 0;
 }
