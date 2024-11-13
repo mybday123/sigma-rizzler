@@ -11,4 +11,4 @@ build:
 	$(STRIP) $(NAME)
 
 clean:
-	rm $(NAME) $(NAME).exe
+	rm -f $(NAME) $(NAME).exe
