@@ -102,7 +102,7 @@ int main() {
         scanf(" %c", &confirmation); getchar();
         switch (tolower(confirmation)) {
             case 'p':
-                Person player;
+                // Person player;
                 return 0;
                 //save_score(player);
                 break;
