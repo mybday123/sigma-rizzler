@@ -1,11 +1,26 @@
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+
+typedef struct{
+    char username[100];
+    int health;
+    int score;
+}Person;
+
+typedef struct{
+    char name[100];
+    int health;
+}Enemy;
 
 void printAuthentication()
 {
+
 }
 
 void authRegister()
 {
+
 }
 void printLogo()
 {
@@ -19,8 +34,5 @@ void printLogo()
 int main()
 {   
     printLogo();
-        // do{
-
-        // }while();
     return 0;
-}
+}   
