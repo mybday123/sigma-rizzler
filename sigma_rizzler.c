@@ -4,8 +4,19 @@
  * A simple turn-based game about Sigma and Rizz
 */
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
+#include <stdlib.h>
+
+typedef struct{
+    char username[100];
+    int health;
+    int score;
+}Person;
+
+typedef struct{
+    char name[100];
+    int health;
+}Enemy;
 
 void attack(int *hp){
     srand(time(NULL));
@@ -45,10 +56,5 @@ void printLogo()
 int main()
 {
     printLogo();
-        // do{
-        
-
-
-        // }while();
     return 0;
-}
+}   
