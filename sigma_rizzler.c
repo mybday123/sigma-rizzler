@@ -10,6 +10,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#define CLEAR_SCREEN_REGEX "\e[1;1H\e[2J"
 ////////////////////////////////////////////////
 
 // Struct of person and enemy section
@@ -26,16 +27,21 @@ typedef struct
 {
     char name[100];
     int health;
+    int scoreObtained;
 } Enemy;
 
+Enemy enemy[5] = {
+    {"Ambatron", 100, 500},
+    {"Rusdi", 120, 1000},
+    {"Ambatukers", 140, 1500},
+    {"Ngamutron", 160, 2000},
+    {"Gambatron", 180, 2500}};
 //////////////////////////////////////////////
 
-void generateEnemy()
+Enemy *generateEnemy()
 {
-}
-
-void playerAttack(){
-
+    srand(time(NULL));
+    return &enemy[(rand() % 6)];
 }
 
 void printUser()
@@ -81,12 +87,14 @@ void printUser()
         printf("        *****        \n");
     }
 }
+
 void getPlayerName()
 {
     char agreement = ' ';
     int rejectionLevel = 1;
     do
     {
+        printf("%s", CLEAR_SCREEN_REGEX);
         switch (rejectionLevel)
         {
         case 1:
@@ -96,7 +104,7 @@ void getPlayerName()
             printf("Hey, you're more skibidii than i think, so i need your name!\n");
             break;
         case 3:
-            printf("HEYY, I NEED YOUR NAME PLEASE ??!?!\n");
+            printf("HEYY, I NEED YOUR NAME PLEASE \?\?!?!\n");
             break;
         default:
             printf("To be honest, i really need your name, so please!!\n");
@@ -111,28 +119,17 @@ void getPlayerName()
     int isNameFilled = 0;
     do
     {
+        printf("Add your username, skibidi soldier : ");
         char temp[10];
-        scanf("%[^\n]", temp);
-        getchar();
+        scanf("%9s", temp);
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF);
         if (strlen(temp) <= 10)
         {
             isNameFilled = 1;
             strcpy(user.username, temp);
         }
     } while (isNameFilled == 0);
-}
-
-void playGame()
-{
-    int isPlayerDie = 0;
-
-    user.health = 100;
-    getPlayerName();
-    printf("%s", user.username);
-    // do
-    // {
-    //     playerAttack();
-    // } while (isPlayerDie != 1);
 }
 
 void attack(int *hp)
@@ -150,6 +147,103 @@ void heal(int *hp)
     int heal = random;
     *hp += heal;
 }
+
+void playerTurn(Enemy *enemy)
+{
+    char decision = ' ';
+    printUser();
+    printf("Player : \n");
+    printf("Name : %s\n", user.username);
+    printf("Health : %d\n", user.health);
+    printf("Score : %d\n", user.score);
+    do
+    {
+        puts("(H)eal\n"
+             "(A)ttack\n"
+             "(S)kip ");
+        scanf("%c", &decision);
+        getchar();
+    } while (tolower(decision) != 'a' && tolower(decision) != 'h' && tolower(decision) != 's');
+    switch(tolower(decision)) {
+        case 'a' :
+            attack(&enemy->health);
+            break;
+        case 'h' :
+            heal(&user.health);
+            break;
+        case 's' :
+            break;
+    }
+}
+
+void enemyTurn(Enemy *enemy){
+    srand(time(NULL));
+    int random = (rand() % 9);
+    if(random > 5){
+        heal(&enemy->health);
+    }else{
+        attack(&user.health);
+    }
+    int heal = random;
+}
+
+
+
+int checkCondition(Enemy *enemy)
+{
+    if(user.health <= 0){
+        return -1;
+    }else if(enemy->health <= 0) {
+        user.score += enemy->scoreObtained;
+        return 1;
+    }else {
+        return 0;
+    }
+}
+
+void playGame()
+{
+    int isPlayerDie = 0;
+
+    user.health = 100;
+    getPlayerName();
+    printf("%s", user.username);
+    do
+    {
+        int defeatedEnemy = 0;
+        Enemy *enemy = generateEnemy();
+        while (defeatedEnemy != 1)
+        {
+            printf("Enemy's health : %d", enemy->health);
+            playerTurn(enemy);
+            int result = checkCondition(enemy);
+            if(result == 1){
+                defeatedEnemy = 1;
+                break;
+            }else if(result == -1){
+                isPlayerDie = 1;
+                break;
+            }
+            enemyTurn(enemy);
+            result = checkCondition(enemy);
+            if(result == 1){
+                defeatedEnemy = 1;
+                break;
+            }else if(result == -1){
+                isPlayerDie = 1;
+                break;
+            }
+        }
+    } while (isPlayerDie != 1);
+    if(user.score > 1000){
+        printf("Hmmm, not bad than i thought!\n");
+    }else if(user.score > 2000){
+        printf("Wow, great job!\n");
+    }else if(user.score > 3000){
+        printf("OMG, YOU'RE SO SIGMA!\n");
+    }
+}
+
 
 void printLogo()
 {
@@ -191,5 +285,5 @@ int main()
             puts("Invalid choice");
         }
     } while (confirmation != 'q');
-     return 0;
+    return 0;
 }
