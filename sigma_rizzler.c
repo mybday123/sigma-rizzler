@@ -99,7 +99,7 @@ int main() {
     do{
         print_menu();
         printf("Enter your choice: ");
-        scanf(" %c", &confirmation);
+        scanf(" %c", &confirmation); getchar();
         switch (tolower(confirmation)) {
             case 'p':
                 Person player;
@@ -109,7 +109,7 @@ int main() {
             case 'l':
                 leaderboard();
                 puts("Press any key to continue...");
-                getchar(); getchar();
+                getchar();
                 break;
             case 'q':
                 printf("Thanks for playing");
