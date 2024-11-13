@@ -226,7 +226,7 @@ int main()
                 getchar();
                 break;
             case 'q':
-                printf("Thanks for playing");
+                puts("Thanks for playing");
                 return 0;
             default:
                 puts("Invalid choice!");
