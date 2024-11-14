@@ -1,10 +1,3 @@
-/*
- * SIGMA RIZZLER
- *
- * A simple turn-based game about Sigma and Rizz
- */
-
-// Set library that is going to be needed
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
@@ -440,7 +433,8 @@ void menu()
          "(Q)uit game");
 }
 
-void clear_screen() {
+void clearScreen() 
+{
     printf(CLEAR_SCREEN_REGEX);
 }
 
@@ -454,7 +448,8 @@ int main()
         menu();
         printf("Enter your choice: ");
         scanf(" %c", &confirmation); getchar();
-        switch (tolower(confirmation)) {
+        switch (tolower(confirmation)) 
+        {
             case 'p':
                 // Person player;
                 return 0;
