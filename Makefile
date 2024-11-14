@@ -1,8 +1,14 @@
 CC ?= gcc
 STRIP ?= strip
-CFLAGS = -Wall -Werror -O2
+CFLAGS = -O2
+WERROR = 1
+WFLAGS = -Wall -Werror
 SRC = sigma_rizzler.c
 NAME = sigma
+
+ifeq ($(WERROR), 1)
+	CFLAGS += $(WFLAGS)
+endif
 
 all: build
 
