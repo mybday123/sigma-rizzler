@@ -27,6 +27,7 @@ typedef struct
 {
     char name[100];
     int health;
+    int scoreObtained;
 }Enemy;
 
 int isvulnurable = 0;
@@ -62,14 +63,14 @@ int buff(){
         srand (time(NULL));
         int buff = (rand() % 6) + 5;
 
-        return buff;
         printf("The arrow of the hunt has assisted you with a buff of %d\n", buff);
-
+        return buff;
     }
-
-
+    else {
+        return 0;
+    }
 }
-int pregame_announcement(int turn){
+void pregame_announcement(int turn){
     if (turn >= 3){
         printf("Both buff and debuffs for you and the enemy are active! Push on with care!\n");
         srand (time(NULL));
@@ -86,10 +87,8 @@ int pregame_announcement(int turn){
             printf("The enemy have been afflicted by poison! They will take damage overtime for 3 turns\n");
             poison = 1;
             poison_counter = 3;
-
         }
     }
-
 }
 
 void apply_poison(int *hp) {
@@ -99,7 +98,7 @@ void apply_poison(int *hp) {
         printf("Poison damage of %d applied! Remaining poison turns: %d\n", poison_damage, poison_counter);
         poison_counter--;
         if(poison_counter == 0){
-            poison == 0;
+            poison = 0;
         }
     }
     else {
@@ -248,7 +247,7 @@ void heal(int *hp)
     if (abundant == 1){
         heal += gacha_buffheal();
         if (poison == 1){
-            poison == 0;
+            poison = 0;
             printf("Poison has been cured!\n");
 
         }
@@ -299,7 +298,7 @@ void enemyTurn(Enemy *enemy){
     }else{
         attack(&user.health);
     }
-    int heal = random;
+    // int heal = random;
 }
 
 
