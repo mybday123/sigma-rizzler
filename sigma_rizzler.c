@@ -1,9 +1,28 @@
+// SIGMA RIZZLER
+
+/*
+ *   Problem saat ini :
+ *   - Saat healing harus atur agar tidak bentrok
+ *   - Saat attack harus atur juga agar tidak bentrok buffnya dengan user
+ *
+ */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#define SLEEP(ms) Sleep(ms)
+#elif __linux__
+#include <unistd.h>
+#define SLEEP(ms) sleep((ms) / 1000)
+#endif
 #define CLEAR_SCREEN_REGEX "\e[1;1H\e[2J"
+
+int turn = 1;
 
 // Struct of person and enemy section
 typedef struct
@@ -11,21 +30,42 @@ typedef struct
     char username[100];
     int health;
     int score;
+    int poison;
+    int abundant;
+    int poison_counter;
+    int inflictVulnerable;
 } Person;
-
-Person user;
 
 typedef struct
 {
     char name[100];
+    int max_health;
     int health;
     int scoreObtained;
-}Enemy;
+    int poison;
+    int poison_counter;
+} Enemy;
 
-int isvulnurable = 0;
-int abundant = 0;
-int poison = 1;
-int poison_counter = 0;
+Person *user;
+Enemy *enemy;
+
+Enemy enemies[5] =
+    {
+        {"Ambatron", 100, 100, 500, 0, 0},
+        {"Rusdi", 120, 120, 1000, 0, 0},
+        {"Ambatukers", 140, 140, 1500, 0, 0},
+        {"Ngamutron", 160, 160, 2000, 0, 0},
+        {"Gambatron", 180, 180, 2500, 0, 0}};
+
+void generateEnemy()
+{
+    srand(time(NULL));
+    Enemy newEnemy = enemies[(rand() % 5)];
+    newEnemy.health = newEnemy.max_health;
+    newEnemy.poison = 0;
+    newEnemy.poison_counter = 0;
+    *enemy = newEnemy;
+}
 
 int gacha()
 {
@@ -55,117 +95,167 @@ int buff()
     int random = gacha();
     if (random >= 5)
     {
-        srand (time(NULL));
+        srand(time(NULL));
         int buff = (rand() % 6) + 5;
 
         printf("The arrow of the hunt has assisted you with a buff of %d\n", buff);
         return buff;
     }
-    else {
+    else
+    {
         return 0;
     }
-
-
 }
-void pregameAnnouncement(int turn)
+void pregameAnnouncement(int round)
 {
-    if (turn >= 3){
+    if (round % 3 == 0)
+    {
         printf("Both buff and debuffs for you and the enemy are active! Push on with care!\n");
-        srand (time(NULL));
-        int notice = gacha();
+        srand(time(NULL));
+        int notice = (rand() % 10);
         if (notice <= 3)
         {
-            printf("Enemy is vulnurable for this turn! Bring in the Damage!\n");
-            isvulnurable = 1;
+            printf("Enemy is vulnurable for this round! Bring in the Damage!\n");
+            user->inflictVulnerable = 1;
         }
-        else if(notice > 3 && notice <= 6)
+        else if (notice > 3 && notice <= 6)
         {
-            printf("Goddess of Abundance have blessed you! Healing now has improved for this turn!\n");
-            abundant = 1;
+            printf("Goddess of Abundance have blessed you! Healing now has improved for this round!\n");
+            user->abundant = 1;
         }
-        else if(notice >= 7 && notice <= 9)
+        else if (notice >= 7 && notice <= 9)
         {
-            printf("The enemy have been afflicted by poison! They will take damage overtime for 3 turns\n");
-            poison = 1;
-            poison_counter = 3;
+            if (notice == 8)
+            {
+                printf("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n");
+                enemy->poison = 1;
+                enemy->poison_counter = 2;
+            }
+            else if (notice == 9)
+            {
+                printf("You have been afflicted by poison! You will take damage overtime for 3 rounds\n");
+                user->poison = 1;
+                user->poison_counter = 2;
+            }
         }
     }
 }
 
-void applyPoison(int *hp)
+// Grouped by poison
+void handlePoison(int *hp, int *poison_counter, int *poison)
 {
-    if (poison_counter > 0 && poison == 1) {
-        int poison_damage = gachaPoison();
-        *hp -= poison_damage;
-        printf("Poison damage of %d applied! Remaining poison turns: %d\n", poison_damage, poison_counter);
-        poison_counter--;
-        if(poison_counter == 0)
-        {
-            poison = 0;
-        }
-    }
-    else 
+    int poison_damage = gachaPoison();
+    *hp -= poison_damage;
+    printf("Poison damage of %d applied! Remaining poison rounds: %d\n", poison_damage, *poison_counter);
+    (*poison_counter)--;
+    if (*poison_counter == 0)
     {
-        poison = 0;
+        *poison = 0;
     }
 }
 
-Enemy enemy[5] = 
+void applyPoison()
 {
-    {"Ambatron", 100, 500},
-    {"Rusdi", 120, 1000},
-    {"Ambatukers", 140, 1500},
-    {"Ngamutron", 160, 2000},
-    {"Gambatron", 180, 2500}
-};
+    if (user->poison > 0 && user->poison == 1)
+        handlePoison(&user->health, &user->poison_counter, &user->poison);
+    else if (enemy->poison > 0 && enemy->poison == 1)
+        handlePoison(&enemy->health, &enemy->poison_counter, &enemy->poison);
+}
+// Grouped by poison
 
-Enemy *generateEnemy()
+int attack(int round)
 {
     srand(time(NULL));
-    return &enemy[(rand() % 6)];
-}
 
-void printUser()
-{
-    if (user.health > 75)
+    int random = (rand() % 16) + 5;
+    int atk = random;
+    int buff_atk = atk;
+    if (user->inflictVulnerable == 1 && turn == 1 && round >= 3)
     {
-        printf("        *****        \n");
-        printf("     *         *     \n");
-        printf("   *    O   O    *   \n");
-        printf("  *      \\_/      *  \n");
-        printf("   *             *   \n");
-        printf("     *         *     \n");
-        printf("        *****        \n\n");
+        buff_atk = buff() + buff_atk;
+        buff_atk += gachaVulnerability();
+        user->inflictVulnerable = 0;
     }
-    else if (user.health > 50 && user.health <= 75)
+    if (turn == 0)
     {
-        printf("        *****        \n");
-        printf("     *         *     \n");
-        printf("   *    O   O    *   \n");
-        printf("  *       ---      * \n");
-        printf("   *             *   \n");
-        printf("     *         *     \n");
-        printf("        *****        \n\n");
-    }
-    else if (user.health > 0 && user.health <= 50)
-    {
-        printf("        *****        \n");
-        printf("     *         *     \n");
-        printf("   *    O   O    *   \n");
-        printf("  *       ---      * \n");
-        printf("   *      / \\      * \n");
-        printf("     *         *     \n");
-        printf("        *****        \n\n");
+        user->health -= buff_atk;
+        turn = 1;
     }
     else
     {
-        printf("        *****        \n");
-        printf("     *         *     \n");
-        printf("   *    X   X    *   \n");
-        printf("  *       ---      * \n");
-        printf("   *             *   \n");
-        printf("     *         *     \n");
-        printf("        *****        \n");
+        enemy->health -= buff_atk;
+        turn = 0;
+    }
+    return buff_atk;
+}
+
+int gachaBuffHeal()
+{
+    srand(time(NULL));
+    int random = (rand() % 11) + 10;
+    return random;
+}
+
+int heal()
+{
+    srand(time(NULL));
+    int random = (rand() % 9) + 5;
+    int heal = random;
+
+    if (turn == 0)
+    {
+        if (enemy->health + heal > enemy->max_health)
+        {
+            enemy->health = enemy->max_health;
+        }
+        else
+        {
+            enemy->health += heal;
+        }
+        turn = 1;
+        return heal;
+    }
+
+    if (user->abundant == 1)
+    {
+        heal += gachaBuffHeal();
+        if (user->poison == 1)
+        {
+            user->poison = 0;
+            printf("Poison has been cured!\n");
+        }
+    }
+
+    if (user->health + heal > 100)
+    {
+        user->health = 100;
+    }
+    else
+    {
+        user->health += heal;
+    }
+    turn = 0;
+    return heal;
+}
+void takeTurn(int round)
+{
+    pregameAnnouncement(round);
+}
+
+int checkCondition()
+{
+    if (user->health <= 0)
+    {
+        return -1;
+    }
+    else if (enemy->health <= 0)
+    {
+        user->score += enemy->scoreObtained;
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -204,72 +294,85 @@ void getPlayerName()
         char temp[10];
         scanf("%9s", temp);
         int ch;
-        while ((ch = getchar()) != '\n' && ch != EOF);
+        while ((ch = getchar()) != '\n' && ch != EOF)
+            ;
         if (strlen(temp) <= 10)
         {
             isNameFilled = 1;
-            strcpy(user.username, temp);
+            strcpy(user->username, temp);
         }
     } while (isNameFilled == 0);
 }
 
-void attack(int *hp, int turn)
+void print_user_condition()
+{
+    if (user->health > 75)
+    {
+        printf("        ***        \n");
+        printf("     *         *     \n");
+        printf("   *    O   O    *   \n");
+        printf("  *      \\_/      *  \n");
+        printf("   *             *   \n");
+        printf("     *         *     \n");
+        printf("        ***        \n\n");
+    }
+    else if (user->health > 50 && user->health <= 75)
+    {
+        printf("        ***        \n");
+        printf("     *         *     \n");
+        printf("   *    O   O    *   \n");
+        printf("  *      ---      * \n");
+        printf("   *             *   \n");
+        printf("     *         *     \n");
+        printf("        ***        \n\n");
+    }
+    else if (user->health > 0 && user->health <= 50)
+    {
+        printf("        ***        \n");
+        printf("     *         *     \n");
+        printf("   *    O   O    *   \n");
+        printf("  *       ---      * \n");
+        printf("   *      / \\     * \n");
+        printf("     *         *     \n");
+        printf("        ***        \n\n");
+    }
+    else
+    {
+        printf("        ***        \n");
+        printf("     *         *     \n");
+        printf("   *    X   X    *   \n");
+        printf("  *      ---      * \n");
+        printf("   *             *   \n");
+        printf("     *         *     \n");
+        printf("        ***        \n");
+    }
+}
+
+void enemyTurn(int round)
 {
     srand(time(NULL));
-
-    int random = (rand() % 16) + 5;
-     int atk = random;
-    if (turn < 3){
-    *hp -= atk;
+    int random = (rand() % 9);
+    int amount = 0;
+    if (random > 5)
+    {
+        amount = attack(round);
+        printf("The bot attacked you with %d damage\n", amount);
     }
-    else {
-        int buff_atk = buff(atk) + atk;
-        if(isvulnurable == 1){
-            buff_atk += gachaVulnerability();
-            isvulnurable = 0;
-        }
-        *hp -= buff_atk;
-
+    else
+    {
+        amount = heal(round);
+        printf("The bot healed himself with %d HP\n", amount);
     }
 }
 
-int gachaBuffHeal()
-{
-    srand (time(NULL));
-    int random = (rand() % 11) + 10;
-    return random;
-}
-
-void heal(int *hp)
-{
-    srand(time(NULL));
-    int random = (rand() % 9) + 5;
-    int heal = random;
-    if (abundant == 1){
-        heal += gachaBuffHeal();
-        if (poison == 1){
-            poison = 0;
-            printf("Poison has been cured!\n");
-
-        }
-    }
-    *hp += heal;
-}
-void takeTurn(int *hp, int turn)
-{
-    applyPoison(hp);
-    pregameAnnouncement(turn); // Check for any new effects or buffs
-
-}
-
-void playerTurn(Enemy *enemy)
+void playerTurn(Enemy *enemy, int round)
 {
     char decision = ' ';
-    printUser();
-    printf("Player : \n");
-    printf("Name : %s\n", user.username);
-    printf("Health : %d\n", user.health);
-    printf("Score : %d\n", user.score);
+    print_user_condition();
+    printf("Player \n");
+    printf("Name : %s\n", user->username);
+    printf("Health : %d\n", user->health);
+    printf("Score : %d\n", user->score);
     do
     {
         puts("(H)eal\n"
@@ -278,106 +381,101 @@ void playerTurn(Enemy *enemy)
         scanf("%c", &decision);
         getchar();
     } while (tolower(decision) != 'a' && tolower(decision) != 'h' && tolower(decision) != 's');
-    switch(tolower(decision)) 
+    int amount = 0;
+    switch (tolower(decision))
     {
-        case 'a' :
-            attack(&enemy->health);
-            break;
-        case 'h' :
-            heal(&user.health);
-            break;
-        case 's' :
-            break;
+    case 'a':
+        amount = attack(round);
+        printf("You attacked the enemy with %d damage\n", amount);
+        break;
+    case 'h':
+        amount = heal(round);
+        printf("You healed yourself with %d HP\n", amount);
+        break;
+    case 's':
+        break;
     }
 }
 
-void enemyTurn(Enemy *enemy)
+void resetPlayer()
 {
-    srand(time(NULL));
-    int random = (rand() % 9);
-    if(random > 5){
-        heal(&enemy->health);
-    }
-    else
-    {
-        attack(&user.health);
-    }
-    // int heal = random;
-}
-
-int checkCondition(Enemy *enemy)
-{
-    if(user.health <= 0){
-        return -1;
-    }
-    else if(enemy->health <= 0) 
-    {
-        user.score += enemy->scoreObtained;
-        return 1;
-    }
-    else 
-    {
-        return 0;
-    }
+    user->abundant = 0;
+    user->poison = 0;
+    user->poison_counter = 0;
+    user->inflictVulnerable = 0;
+    user->health = 100;
 }
 
 void playGame()
 {
     int isPlayerDie = 0;
-
-    user.health = 100;
+    user->score = 0;
     getPlayerName();
-    printf("%s", user.username);
     do
     {
         int defeatedEnemy = 0;
-        Enemy *enemy = generateEnemy();
+        generateEnemy();
+        int round = 1;
+        resetPlayer();
+        turn = 1;
         while (defeatedEnemy != 1)
         {
-            printf("Enemy's health : %d", enemy->health);
-            playerTurn(enemy);
-            int result = checkCondition(enemy);
-            if(result == 1)
+            if (round % 3 == 0)
+                takeTurn(round);
+            applyPoison();
+            printf("Enemy's health : %d\n", enemy->health);
+            playerTurn(enemy, round);
+            SLEEP(1000 * 2);
+            int result = checkCondition();
+            // Checking
+            if (result == 1)
             {
                 defeatedEnemy = 1;
                 break;
             }
-            else if(result == -1)
+            else if (result == -1)
             {
                 isPlayerDie = 1;
                 break;
             }
-            enemyTurn(enemy);
-            result = checkCondition(enemy);
-            if(result == 1)
+            // Checking
+
+            enemyTurn(round);
+            SLEEP(1000 * 2);
+            result = checkCondition();
+
+            // Checking
+            if (result == 1)
             {
                 defeatedEnemy = 1;
                 break;
             }
-            else if(result == -1)
+            else if (result == -1)
             {
                 isPlayerDie = 1;
                 break;
             }
+            // Checking
+            round++;
         }
     } while (isPlayerDie != 1);
-    if(user.score > 1000)
+    if (user->score > 1000)
     {
         printf("Hmmm, not bad than i thought!\n");
     }
-    else if(user.score > 2000)
+    else if (user->score > 2000)
     {
         printf("Wow, great job!\n");
     }
-    else if(user.score > 3000)
+    else if (user->score > 3000)
     {
         printf("OMG, YOU'RE SO SIGMA!\n");
     }
 }
 
-int compare(const void* a, const void* b) 
+int compare(const void *a, const void *b)
 {
-   return ((Person*)b)->score - ((Person*)a)->score;
+    return ((Person *)b)->score - ((Person *)a)->score;
 }
 
 void save_score(Person player)
@@ -387,7 +485,7 @@ void save_score(Person player)
     fclose(fp);
 }
 
-void leaderboard() 
+void leaderboard()
 {
     FILE *fp = fopen("scoreboard.save", "r");
     if (fp == NULL)
@@ -403,14 +501,14 @@ void leaderboard()
     puts("=============================");
     puts("|   Username   |    Score   |");
     puts("=============================");
-    while (fscanf(fp, "%[^#]#%d\n", player[count].username, &player[count].score) != EOF) 
+    while (fscanf(fp, "%[^#]#%d\n", player[count].username, &player[count].score) != EOF)
     {
         count++;
     }
     qsort(player, count, sizeof(Person), compare);
-    for(int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
-         printf("|%-14.14s|%12d|\n", player[i].username, player[i].score);
+        printf("|%-14.14s|%12d|\n", player[i].username, player[i].score);
     }
     puts("=============================");
     fclose(fp);
@@ -418,11 +516,11 @@ void leaderboard()
 
 void printLogo()
 {
-    const char *LOGO = "   _____ ____________  ______ \n"
-                       "  / ___//  _/ ____/  |/  /   |\n"
-                       "  \\__ \\ / // / __/ /|_/ / /| |\n"
-                       " ___/ // // /_/ / /  / / ___ |\n"
-                       "/____/___/\\____/_/  /_/_/  |_|\n\n";
+    const char *LOGO = "   __ _____  __ \n"
+                       "  / _//  / ___/  |/  /   |\n"
+                       "  \\_ \\ / // / _/ /|_/ / /| |\n"
+                       " _/ // // // / /  / / __ |\n"
+                       "/_/_/\\_//  ///  ||\n\n";
 
     printf(LOGO);
 }
@@ -434,13 +532,15 @@ void menu()
          "(Q)uit game");
 }
 
-void clearScreen() 
+void clearScreen()
 {
     printf(CLEAR_SCREEN_REGEX);
 }
 
 int main()
 {
+    user = (Person *)malloc(sizeof(Person));
+    enemy = (Enemy *)malloc(sizeof(Enemy));
     char confirmation;
     printLogo();
 
@@ -448,24 +548,23 @@ int main()
     {
         menu();
         printf("Enter your choice: ");
-        scanf(" %c", &confirmation); getchar();
-        switch (tolower(confirmation)) 
+        scanf(" %c", &confirmation);
+        getchar();
+        switch (tolower(confirmation))
         {
-            case 'p':
-                // Person player;
-                return 0;
-                //save_score(player);
-                break;
-            case 'l':
-                leaderboard();
-                puts("Press any key to continue...");
-                getchar();
-                break;
-            case 'q':
-                puts("Thanks for playing");
-                return 0;
-            default:
-                puts("Invalid choice!");
+        case 'p':
+            playGame();
+            break;
+        case 'l':
+            leaderboard();
+            puts("Press any key to continue...");
+            getchar();
+            break;
+        case 'q':
+            puts("Thanks for playing");
+            return 0;
+        default:
+            puts("Invalid choice!");
         }
     } while (confirmation != 'q');
     return 0;
