@@ -16,10 +16,11 @@
 #ifdef _WIN32
 #include <windows.h>
 #define SLEEP(ms) Sleep(ms)
-#elif __linux__
+#elif defined(__linux__) || defined(__APPLE__)
 #include <unistd.h>
 #define SLEEP(ms) usleep((ms) * 1000)
 #endif
+
 #define CLEAR_SCREEN_REGEX "\e[1;1H\e[2J"
 
 int turn = 1;
