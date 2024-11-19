@@ -18,7 +18,7 @@
 #define SLEEP(ms) Sleep(ms)
 #elif __linux__
 #include <unistd.h>
-#define SLEEP(ms) sleep((ms) / 1000)
+#define SLEEP(ms) usleep((ms) * 1000)
 #endif
 #define CLEAR_SCREEN_REGEX "\e[1;1H\e[2J"
 
