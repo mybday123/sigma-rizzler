@@ -332,7 +332,7 @@ void print_user_condition()
         printf("        *****        \n");
         printf("     *         *     \n");
         printf("   *    O   O    *   \n");
-        printf("  *       ---      * \n");
+        printf("  *      ---      * \n");
         printf("   *      / \\     * \n");
         printf("     *         *     \n");
         printf("        *****        \n\n");
