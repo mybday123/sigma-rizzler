@@ -308,33 +308,33 @@ void print_user_condition()
 {
     if (user->health > 75)
     {
-        printf("        ***        \n");
+        printf("        *****        \n");
         printf("     *         *     \n");
         printf("   *    O   O    *   \n");
         printf("  *      \\_/      *  \n");
         printf("   *             *   \n");
         printf("     *         *     \n");
-        printf("        ***        \n\n");
+        printf("        *****        \n\n");
     }
     else if (user->health > 50 && user->health <= 75)
     {
-        printf("        ***        \n");
+        printf("        *****        \n");
         printf("     *         *     \n");
         printf("   *    O   O    *   \n");
         printf("  *      ---      * \n");
         printf("   *             *   \n");
         printf("     *         *     \n");
-        printf("        ***        \n\n");
+        printf("        *****        \n\n");
     }
     else if (user->health > 0 && user->health <= 50)
     {
-        printf("        ***        \n");
+        printf("        *****        \n");
         printf("     *         *     \n");
         printf("   *    O   O    *   \n");
         printf("  *       ---      * \n");
         printf("   *      / \\     * \n");
         printf("     *         *     \n");
-        printf("        ***        \n\n");
+        printf("        *****        \n\n");
     }
     else
     {
@@ -516,11 +516,11 @@ void leaderboard()
 
 void printLogo()
 {
-    const char *LOGO = "   __ _____  __ \n"
-                       "  / _//  / ___/  |/  /   |\n"
-                       "  \\_ \\ / // / _/ /|_/ / /| |\n"
-                       " _/ // // // / /  / / __ |\n"
-                       "/_/_/\\_//  ///  ||\n\n";
+    const char *LOGO = "   _____ ____________  ______ \n"
+                       "  / ___//  _/ ____/  |/  /   |\n"
+                       "  \\__ \\ / // / __/ /|_/ / /| |\n"
+                       " ___/ // // /_/ / /  / / ___ |\n"
+                       "/____/___/\\____/_/  /_/_/  |_|\n\n";
 
     printf(LOGO);
 }
