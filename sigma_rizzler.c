@@ -53,6 +53,7 @@ typedef struct
     int scoreObtained;
     int poison;
     int poison_counter;
+    int abundant;
     int isVulnerable;
 } Enemy;
 
@@ -152,8 +153,20 @@ void pregameAnnouncement(int round)
         }
         else if (notice > 3 && notice <= 6)
         {
-            printf("Goddess of Abundance have blessed you! Healing now has improved for this round!\n");
-            user->abundant = 1;
+            if (diff == hard)
+            {
+                if (notice == 6)
+                {
+                    printf("The enemy has been blessed by Goddess of Abundance! Healing now has improved for this round!\n");
+                    enemy->abundant = 1;
+                    return;
+                }
+            }
+            if (notice <= 5)
+            {
+                printf("Goddess of Abundance have blessed you! Healing now has improved for this round!\n");
+                user->abundant = 1;
+            }
         }
         else if (notice >= 7 && notice <= 9)
         {
@@ -245,6 +258,15 @@ int heal()
 
     if (turn == 0)
     {
+        if (enemy->abundant == 1)
+        {
+            heal += gachaBuffHeal();
+            if (enemy->poison == 1)
+            {
+                enemy->poison = 0;
+                printf("Enemy's poison has been cured!\n");
+            }
+        }
         if (enemy->health + heal > enemy->max_health)
         {
             enemy->health = enemy->max_health;
@@ -253,6 +275,7 @@ int heal()
         {
             enemy->health += heal;
         }
+        enemy->abundant = 0;
         turn = 1;
         return heal;
     }
@@ -265,6 +288,7 @@ int heal()
             user->poison = 0;
             printf("Poison has been cured!\n");
         }
+        user->abundant = 0;
     }
 
     if (user->health + heal > 100)
@@ -291,7 +315,18 @@ int checkCondition()
     }
     else if (enemy->health <= 0)
     {
-        user->score += enemy->scoreObtained;
+        if (diff == easy)
+        {
+            user->score += enemy->scoreObtained * 0.5;
+        }
+        else if (diff == normal)
+        {
+            user->score += enemy->scoreObtained * 0.7;
+        }
+        else if (diff == hard)
+        {
+            user->score += enemy->scoreObtained;
+        }
         return 1;
     }
     else
@@ -400,7 +435,7 @@ void enemyTurn(int round)
         if (random > 5)
         {
             amount = attack(round);
-            printf("The bot attacked you with %d damage\n", amount);
+            printf("The bot rizzed you with %d gyatt damage\n", amount);
         }
         else
         {
@@ -411,7 +446,7 @@ void enemyTurn(int round)
     else
     {
         amount = attack(round);
-        printf("The bot attacked you with %d damage\n", amount);
+        printf("The bot rizzed you with %d gyatt damage\n", amount);
     }
     
 }
@@ -511,7 +546,9 @@ void playGame()
             if (round % 3 == 0)
                 takeTurn(round);
             applyPoison();
+            printf("Enemy %s\n", enemy->name);
             printf("Enemy's health : %d\n", enemy->health);
+            printf("\n-----------------------------------------------------------------------------------------------------\n\n");
             playerTurn(enemy, round);
             SLEEP(1000 * 2);
             int result = checkCondition();
@@ -602,6 +639,30 @@ void leaderboard()
     fclose(fp);
 }
 
+void difficultyInformation()
+{
+    clearScreen();
+    printf("Difficulty of :\n");
+    printf("1. NPC\n");
+    printf("- You will only get 50%% of the score from the enemy of this difficulty\n");
+    printf("- The enemy will have so many debuff but no buff for the enemy\n");
+    printf("- Enemy's attack will be decreased by 10-20%%\n");
+    printf("- Enemy's heal will be decreased by 10-20%%\n");
+    printf("2. SIGMA\n");
+    printf("- You will only get 70%% of the score from the enemy of this difficulty\n");
+    printf("- You will have more chance to be afflicted by poison for 2 turns\n");
+    printf("- Enemy's attack will be normal\n");
+    printf("- Enemy's heal will be normal\n");
+    printf("\n");
+    printf("3. GIGA-CHAD\n");
+    printf("- You will only get 100%% of the score from the enemy of this difficulty\n");
+    printf("- You will have more chance to be afflicted by poison for 2 turns\n");
+    printf("- You will have more chance to be vulnerable for 1 round\n");
+    printf("- Enemy's attack will be increased by 10%%\n");
+    printf("- Enemy's heal will be increased by 10%%\n");
+    printf("\n");
+}
+
 void printLogo()
 {
     const char *LOGO = "   _____ ____________  ______ \n"
@@ -617,6 +678,7 @@ void menu()
 {
     puts("(P)lay game\n"
          "(L)eaderboard\n"
+         "(D)ifficulty Information\n"
          "(Q)uit game");
 }
 
@@ -640,6 +702,11 @@ int main()
             break;
         case 'l':
             leaderboard();
+            puts("Press any key to continue...");
+            getchar();
+            break;
+        case 'd':
+            difficultyInformation();
             puts("Press any key to continue...");
             getchar();
             break;
