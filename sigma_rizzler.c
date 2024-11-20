@@ -59,6 +59,15 @@ typedef struct
 
 Person *user;
 Enemy *enemy;
+/*just checking if the save score function was working properly
+Enemy enemies[5] =
+    {
+        {"Ambatron", 1, 1, 500, 0, 0},
+        {"Rusdi", 1, 1, 1000, 0, 0},
+        {"Ambatukers", 1, 1, 1500, 0, 0},
+        {"Ngamutron", 1, 1, 2000, 0, 0},
+        {"Gambatron", 1, 1, 2500, 0, 0}};
+*/
 
 Enemy enemies[5] =
     {
@@ -440,7 +449,13 @@ void enemyTurn(int round)
         printf("The bot healed himself with %d HP\n", amount);
     }
 }
-
+// moving save_score function above the player turn
+void save_score(Person player)
+{
+    FILE *fp = fopen("scoreboard.save", "a");
+    fprintf(fp, "%s#%d\n", player.username, player.score);
+    fclose(fp);
+}
 void playerTurn(Enemy *enemy, int round)
 {
     char decision = ' ';
@@ -451,12 +466,16 @@ void playerTurn(Enemy *enemy, int round)
     printf("Score : %d\n", user->score);
     do
     {
+        //adding give up menu
         puts("(H)eal\n"
              "(A)ttack\n"
-             "(S)kip ");
+             "(S)kip\n"
+             "(G)ive up");
         scanf("%c", &decision);
         getchar();
-    } while (tolower(decision) != 'a' && tolower(decision) != 'h' && tolower(decision) != 's');
+        //adding brainrot when user enter wrong input
+        if(tolower(decision) != 'a' && tolower(decision) != 'h' && tolower(decision) != 's' && tolower(decision) != 'g') printf("Ermmm, What the Sigma?\n");
+    } while (tolower(decision) != 'a' && tolower(decision) != 'h' && tolower(decision) != 's' && tolower(decision) != 'g');
     int amount = 0;
     switch (tolower(decision))
     {
@@ -471,6 +490,18 @@ void playerTurn(Enemy *enemy, int round)
     case 's':
         turn = 0;
         break;
+    //the give up button the "g"
+    case 'g':
+        user->health = 0;
+        //if the user give up with 0 score *just change the text if it's not to sigma
+        if(user->score ==0){
+            printf("\"-69696969 aura\"ahh moment");
+        }
+        //when the user have score above 0 and press the give up button *just change the text if you want
+        else{
+            printf("You ran with %d score\n", user->score);
+            save_score(*user);
+        }
     }
 }
 
@@ -481,6 +512,14 @@ void resetPlayer()
     user->poison_counter = 0;
     user->isVulnerable = 0;
     user->health = 100;
+
+/*same with here just checking if the save score working
+     user->abundant = 0;
+    user->poison = 0;
+    user->poison_counter = 0;
+    user->isVulnerable = 0;
+    user->health = 1;
+    */
 }
 
 void playGame()
@@ -551,6 +590,8 @@ void playGame()
             else if (result == -1)
             {
                 isPlayerDie = 1;
+                //save the score when the user die and score > 0
+                if(user->score > 0) save_score(*user);
                 break;
             }
             // Checking
@@ -568,6 +609,8 @@ void playGame()
             else if (result == -1)
             {
                 isPlayerDie = 1;
+                //save the score when the user die and score > 0
+                if(user->score > 0) save_score(*user);
                 break;
             }
             // Checking
@@ -593,12 +636,7 @@ int compare(const void *a, const void *b)
     return ((Person *)b)->score - ((Person *)a)->score;
 }
 
-void save_score(Person player)
-{
-    FILE *fp = fopen("scoreboard.txt", "a");
-    fprintf(fp, "%s#%d\n", player.username, player.score);
-    fclose(fp);
-}
+
 
 void leaderboard()
 {
