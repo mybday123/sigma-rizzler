@@ -42,7 +42,7 @@ typedef struct
     int poison;
     int abundant;
     int poison_counter;
-    int inflictVulnerable;
+    int isVulnerable;
 } Person;
 
 typedef struct
@@ -53,6 +53,7 @@ typedef struct
     int scoreObtained;
     int poison;
     int poison_counter;
+    int isVulnerable;
 } Enemy;
 
 Person *user;
@@ -126,11 +127,28 @@ void pregameAnnouncement(int round)
     {
         printf("Both buff and debuffs for you and the enemy are active! Push on with care!\n");
         srand(time(NULL));
-        int notice = (rand() % 10);
+        int notice = (rand() % 11);
         if (notice <= 3)
         {
-            printf("Enemy is vulnurable for this round! Bring in the Damage!\n");
-            user->inflictVulnerable = 1;
+            if (diff == easy || diff == normal)
+            {
+                printf("Enemy is vulnurable! Bring in the Damage!\n");
+                enemy->isVulnerable = 1;
+                return;
+            }
+            if (diff == hard)
+            {
+                if (notice <= 1)
+                {
+                    printf("Enemy is vulnurable! Bring in the Damage!\n");
+                    enemy->isVulnerable = 1;
+                }
+                else
+                {
+                    printf("You are vulnurable! Bring in the Damage!\n");
+                    user->isVulnerable = 1;
+                }
+            }
         }
         else if (notice > 3 && notice <= 6)
         {
@@ -139,17 +157,20 @@ void pregameAnnouncement(int round)
         }
         else if (notice >= 7 && notice <= 9)
         {
-            if (notice == 8)
+            if (notice <= 8)
             {
                 printf("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n");
                 enemy->poison = 1;
                 enemy->poison_counter = 2;
             }
-            else if (notice == 9)
+            if (diff == hard || diff == normal)
             {
-                printf("You have been afflicted by poison! You will take damage overtime for 3 rounds\n");
-                user->poison = 1;
-                user->poison_counter = 2;
+                if (notice > 8)
+                {
+                    printf("You have been afflicted by poison! You will take damage overtime for 3 rounds\n");
+                    user->poison = 1;
+                    user->poison_counter = 2;
+                }
             }
         }
     }
@@ -184,11 +205,17 @@ int attack(int round)
     int random = (rand() % 16) + 5;
     int atk = random;
     int buff_atk = atk;
-    if (user->inflictVulnerable == 1 && turn == 1 && round >= 3)
+    if (enemy->isVulnerable == 1 && turn == 1 && round >= 3)
     {
         buff_atk = buff() + buff_atk;
         buff_atk += gachaVulnerability();
-        user->inflictVulnerable = 0;
+        enemy->isVulnerable = 0;
+    }
+    if (user->isVulnerable == 1 && turn == 2 && round >= 3)
+    {
+        buff_atk = buff() + buff_atk;
+        buff_atk += gachaVulnerability();
+        user->isVulnerable = 0;
     }
     if (turn == 0)
     {
@@ -407,6 +434,7 @@ void playerTurn(Enemy *enemy, int round)
         printf("You healed yourself with %d HP\n", amount);
         break;
     case 's':
+        turn = 0;
         break;
     }
 }
@@ -416,7 +444,7 @@ void resetPlayer()
     user->abundant = 0;
     user->poison = 0;
     user->poison_counter = 0;
-    user->inflictVulnerable = 0;
+    user->isVulnerable = 0;
     user->health = 100;
 }
 
