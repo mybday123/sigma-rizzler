@@ -23,6 +23,14 @@
 
 #define CLEAR_SCREEN_REGEX "\e[1;1H\e[2J"
 
+enum Difficulty
+{
+    easy,
+    normal,
+    hard
+};
+
+enum Difficulty diff = easy;
 int turn = 1;
 
 // Struct of person and enemy section
@@ -57,6 +65,11 @@ Enemy enemies[5] =
         {"Ambatukers", 140, 140, 1500, 0, 0},
         {"Ngamutron", 160, 160, 2000, 0, 0},
         {"Gambatron", 180, 180, 2500, 0, 0}};
+
+void clearScreen()
+{
+    printf(CLEAR_SCREEN_REGEX);
+}
 
 void generateEnemy()
 {
@@ -412,6 +425,41 @@ void playGame()
     int isPlayerDie = 0;
     user->score = 0;
     getPlayerName();
+    int difficultValidated = 0;
+    do
+    {
+        char difficult;
+        clearScreen();
+        printf("Information of each difficulty :\n");
+        printf("NPC. Damn, be chill like an NPC bruh\n");
+        printf("SIGMA. Wow, so you're a gentle SIGMA\n");
+        printf("GIGA-CHAD. You're the grind king, lifting the world on your back! 🏋️‍♂️\n\n");
+        printf("Choose the difficulty\n");
+        printf("(N)PC\n");
+        printf("(S)IGMA\n");
+        printf("(G)IGA-CHAD\n");
+        printf("Your choice : ");
+        scanf("%c", &difficult);
+        getchar();
+        switch (tolower(difficult))
+        {
+        case 'n':
+            diff = easy;
+            break;
+        case 's':
+            diff = normal;
+            break;
+        case 'g':
+            diff = hard;
+            break;
+        default:
+            printf("Invalid choice! Please select a valid difficulty.\n");
+            continue;
+        }
+        difficultValidated = 1;
+
+    } while (difficultValidated == 0);
+
     do
     {
         int defeatedEnemy = 0;
@@ -421,6 +469,7 @@ void playGame()
         turn = 1;
         while (defeatedEnemy != 1)
         {
+            clearScreen();
             if (round % 3 == 0)
                 takeTurn(round);
             applyPoison();
@@ -531,11 +580,6 @@ void menu()
     puts("(P)lay game\n"
          "(L)eaderboard\n"
          "(Q)uit game");
-}
-
-void clearScreen()
-{
-    printf(CLEAR_SCREEN_REGEX);
 }
 
 int main()
