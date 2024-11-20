@@ -394,16 +394,26 @@ void enemyTurn(int round)
     srand(time(NULL));
     int random = (rand() % 9);
     int amount = 0;
-    if (random > 5)
+    float enemyHealthHalf = enemy->health * 0.6;
+    if ((float)enemy->health < enemyHealthHalf)
+    {
+        if (random > 5)
+        {
+            amount = attack(round);
+            printf("The bot attacked you with %d damage\n", amount);
+        }
+        else
+        {
+            amount = heal(round);
+            printf("The bot healed himself with %d HP\n", amount);
+        }  
+    }
+    else
     {
         amount = attack(round);
         printf("The bot attacked you with %d damage\n", amount);
     }
-    else
-    {
-        amount = heal(round);
-        printf("The bot healed himself with %d HP\n", amount);
-    }
+    
 }
 
 void playerTurn(Enemy *enemy, int round)
