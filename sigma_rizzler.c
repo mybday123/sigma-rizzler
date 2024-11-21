@@ -444,16 +444,26 @@ void enemyTurn(int round)
     srand(time(NULL));
     int random = (rand() % 9);
     int amount = 0;
-    if (random > 5)
+    float enemyHealthHalf = enemy->health * 0.6;
+    if ((float)enemy->health < enemyHealthHalf)
+    {
+        if (random > 5)
+        {
+            amount = attack(round);
+            printf("The bot rizzed you with %d gyatt damage\n", amount);
+        }
+        else
+        {
+            amount = heal(round);
+            printf("The bot healed himself with %d HP\n", amount);
+        }  
+    }
+    else
     {
         amount = attack(round);
         printf("The bot rizzed you with %d gyatt damage\n", amount);
     }
-    else
-    {
-        amount = heal(round);
-        printf("The bot healed himself with %d HP\n", amount);
-    }
+    
 }
 // moving save_score function above the player turn
 void save_score(Person player)
@@ -501,7 +511,7 @@ void playerTurn(Enemy *enemy, int round)
         user->health = 0;
         //if the user give up with 0 score *just change the text if it's not to sigma
         if(user->score ==0){
-            printf("\"-69696969 aura\"ahh moment\n");
+            printf("\"-69696969 aura\" ahh moment\n");
         }
         //when the user have score above 0 and press the give up button *just change the text if you feel not suitable
         else{
