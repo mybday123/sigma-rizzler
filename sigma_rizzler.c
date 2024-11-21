@@ -490,8 +490,11 @@ void playerTurn(Enemy *enemy, int round)
         scanf("%c", &decision);
         getchar();
         //adding brainrot when user enter wrong input
-        if(tolower(decision) != 'a' && tolower(decision) != 'h' && tolower(decision) != 's' && tolower(decision) != 'g') printf("Ermmm, What the Sigma?\n");
-    } while (tolower(decision) != 'a' && tolower(decision) != 'h' && tolower(decision) != 's' && tolower(decision) != 'g');
+        if (!strchr("hasgHASG", decision)) 
+        {
+            printf("Ermmm, What the Sigma?\n");
+        }
+    } while (!strchr("hasgHASG", decision));
     int amount = 0;
     switch (tolower(decision))
     {
