@@ -44,6 +44,7 @@ typedef struct
     int abundant;
     int poison_counter;
     int isVulnerable;
+    char diffculty[20];
 } Person;
 
 typedef struct
@@ -65,18 +66,8 @@ void freeMemory(){
     free(user);
     free(enemy);
 }
-/*just checking if the save score function was working properly
-Enemy enemies[5] =
-    {
-        {"Ambatron", 1, 1, 500, 0, 0},
-        {"Rusdi", 1, 1, 1000, 0, 0},
-        {"Ambatukers", 1, 1, 1500, 0, 0},
-        {"Ngamutron", 1, 1, 2000, 0, 0},
-        {"Gambatron", 1, 1, 2500, 0, 0}};
-*/
 
-Enemy enemies[5] =
-    {
+Enemy enemies[5] = {
         {"Ambatron", 100, 100, 500, 0, 0},
         {"Rusdi", 120, 120, 1000, 0, 0},
         {"Ambatukers", 140, 140, 1500, 0, 0},
@@ -349,6 +340,21 @@ int checkCondition()
         return 0;
     }
 }
+void quitGame(){
+    clearScreen();
+    const char *quitText = 
+    " /$$$$$$$$ /$$   /$$ /$$   /$$       /$$$$$$$  /$$$$$$$$ /$$     /$$  /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$\n"
+    "|__  $$__/| $$  | $$| $$  / $$      | $$__  $$| $$_____/|  $$   /$$/ /$$__  $$| $$$ | $$ /$$__  $$| $$_____/\n"
+    "   | $$   | $$  | $$|  $$/ $$/      | $$  \\ $$| $$       \\  $$ /$$/ | $$  \\ $$| $$$$| $$| $$  \\__/| $$      \n"
+    "   | $$   | $$$$$$$$ \\  $$$$/       | $$$$$$$ | $$$$$     \\  $$$$/  | $$  | $$| $$ $$ $$| $$      | $$$$$   \n"
+    "   | $$   | $$__  $$  >$$  $$       | $$__  $$| $$__/      \\  $$/   | $$  | $$| $$  $$$$| $$      | $$__/   \n"
+    "   | $$   | $$  | $$ /$$/\\  $$      | $$  \\ $$| $$          | $$    | $$  | $$| $$\\  $$$| $$    $$| $$      \n"
+    "   | $$   | $$  | $$| $$  \\ $$      | $$$$$$$/| $$$$$$$$    | $$    |  $$$$$$/| $$ \\  $$|  $$$$$$/| $$$$$$$$\n"
+    "   |__/   |__/  |__/|__/  |__/      |_______/ |________/    |__/     \\______/ |__/  \\__/ \\______/ |________/\n";
+    printf(quitText);
+    puts("\nPress Enter to exit.");
+    getchar();
+}
 
 void getPlayerName()
 {
@@ -455,23 +461,27 @@ void enemyTurn(int round)
         else
         {
             amount = heal(round);
-            printf("The bot healed himself with %d HP\n", amount);
+            printf("The rizzler use healing from Ohio and regen %d HP\n", amount);
         }  
     }
     else
     {
         amount = attack(round);
-        printf("The bot rizzed you with %d gyatt damage\n", amount);
+        printf("The rizzler rizzed you with %d GYATT damage\n", amount);
     }
     
 }
-// moving save_score function above the player turn
 void save_score(Person player)
 {
     FILE *fp = fopen("scoreboard.save", "a");
-    fprintf(fp, "%s#%d\n", player.username, player.score);
+    if (diff == easy) strcpy(player.diffculty,"NPC");
+    if (diff == normal) strcpy(player.diffculty,"SIGMA");
+    if (diff == hard) strcpy(player.diffculty,"GIGA-CHAD");
+    fprintf(fp, "%s#%d#%s\n", player.username, player.score,player.diffculty);
     fclose(fp);
 }
+
+int stop = 0;
 void playerTurn(Enemy *enemy, int round)
 {
     char decision = ' ';
@@ -482,14 +492,12 @@ void playerTurn(Enemy *enemy, int round)
     printf("Score : %d\n", user->score);
     do
     {
-        //adding give up menu
         puts("(H)eal\n"
              "(A)ttack\n"
              "(S)kip\n"
              "(G)ive up");
         scanf("%c", &decision);
         getchar();
-        //adding brainrot when user enter wrong input
         if (!strchr("hasgHASG", decision)) 
         {
             printf("Ermmm, What the Sigma?\n");
@@ -500,30 +508,68 @@ void playerTurn(Enemy *enemy, int round)
     {
     case 'a':
         amount = attack(round);
-        printf("You attacked the enemy with %d damage\n", amount);
+        printf("You rizz the rizzler and do %d GYATT damage\n", amount);
         break;
     case 'h':
         amount = heal(round);
-        printf("You healed yourself with %d HP\n", amount);
+        printf("You got back up from the Kai Cenat and heal %d HP\n", amount);
         break;
     case 's':
         turn = 0;
         break;
-    //the give up button the "g"
     case 'g':
+        stop = 1;
         user->health = 0;
-        //if the user give up with 0 score *just change the text if it's not to sigma
         if(user->score ==0){
             printf("\"-69696969 aura\" ahh moment\n");
         }
-        //when the user have score above 0 and press the give up button *just change the text if you feel not suitable
         else{
-            printf("You ran with %d score\n", user->score);
-            save_score(*user);
+            clearScreen();
+            SLEEP(1000);
+            printf("You use Skibidi Toilet to ran away with %d aura\n", user->score);
+            SLEEP(1000);
+             if (user->score >= 1000 && user->score <2000)
+            {
+             printf("Hmmm, not bad than i thought!\n");
+             }
+             else if (user->score >=2000 && user->score < 3000)
+            {
+             printf("Wow, great job!\n");
+             }
+             else if (user->score >=3000)
+             {
+             printf("OMG, YOU'RE SO SIGMA!\n");
+            }
+            SLEEP(1000);
+            printf("Saving your aura in the leaderboard...\n");
+             if(user->score > 0) save_score(*user);
+            SLEEP(1000);
+            printf("Press any key to continue...");
+            getchar();
         }
+        break;
     }
 }
 
+void deathText(){
+     const char *DEATHLOGO = 
+    "__     __   ____    _    _     _____    _____   ______   _____\n"  
+    "\\ \\   / /  / __ \\  | |  | |   |  __ \\  |_   _| |  ____| |  __ \\\n"
+    " \\ \\_/ /  | |  | | | |  | |   | |  | |   | |   | |__    | |  | |\n"
+    "  \\   /   | |  | | | |  | |   | |  | |   | |   |  __|   | |  | |\n"
+    "   | |    | |__| | | |__| |   | |__| |  _| |_  | |____  | |__| |\n"
+    "   |_|     \\____/   \\____/    |_____/  |_____| |______| |_____/\n\n";
+    
+    clearScreen();
+    printf(DEATHLOGO);
+    SLEEP(1000);
+    printf("Not so Skibidi\n");
+    SLEEP(1000);
+    printf("Saving your aura in the leaderboard.....\n");
+    SLEEP(1000);
+    printf("Press any key to continue...");
+    getchar();
+}
 void resetPlayer()
 {
     user->abundant = 0;
@@ -531,14 +577,6 @@ void resetPlayer()
     user->poison_counter = 0;
     user->isVulnerable = 0;
     user->health = 100;
-
-/*same with here just checking if the save score is working
-     user->abundant = 0;
-    user->poison = 0;
-    user->poison_counter = 0;
-    user->isVulnerable = 0;
-    user->health = 1;
-    */
 }
 
 void playGame()
@@ -590,6 +628,7 @@ void playGame()
         turn = 1;
         while (defeatedEnemy != 1)
         {
+            SLEEP(1000 * 2);
             clearScreen();
             if (round % 3 == 0)
                 takeTurn(round);
@@ -604,13 +643,14 @@ void playGame()
             if (result == 1)
             {
                 defeatedEnemy = 1;
+                if(defeatedEnemy == 1){
+                printf("Your rizz was approved by %s and it gives you %d aura\n", enemy->name, enemy->scoreObtained);
+                }
                 break;
             }
             else if (result == -1)
             {
                 isPlayerDie = 1;
-                //save the score when the user die and score > 0
-                if(user->score > 0) save_score(*user);
                 break;
             }
             // Checking
@@ -628,7 +668,10 @@ void playGame()
             else if (result == -1)
             {
                 isPlayerDie = 1;
-                //save the score when the user die and score > 0
+                if(stop == 0){
+                    deathText();
+                }
+                
                 if(user->score > 0) save_score(*user);
                 break;
             }
@@ -636,18 +679,6 @@ void playGame()
             round++;
         }
     } while (isPlayerDie != 1);
-    if (user->score > 1000)
-    {
-        printf("Hmmm, not bad than i thought!\n");
-    }
-    else if (user->score > 2000)
-    {
-        printf("Wow, great job!\n");
-    }
-    else if (user->score > 3000)
-    {
-        printf("OMG, YOU'RE SO SIGMA!\n");
-    }
 }
 
 int compare(const void *a, const void *b)
@@ -668,21 +699,22 @@ void leaderboard()
 
     Person player[500];
     int count = 0;
-    puts("=============================");
-    puts("|         Scoreboard        |");
-    puts("=============================");
-    puts("|   Username   |    Score   |");
-    puts("=============================");
-    while (fscanf(fp, "%[^#]#%d\n", player[count].username, &player[count].score) != EOF)
+  
+    puts("==================================================");                                                         
+    puts("|                 Scoreboard                    |");
+    puts("==================================================");
+    puts("|   Username   |    Score   |     Difficulty    |");
+    puts("==================================================");
+    while (fscanf(fp, "%[^#]#%d#%s\n", player[count].username, &player[count].score, player[count].diffculty) != EOF)
     {
         count++;
     }
     qsort(player, count, sizeof(Person), compare);
     for (int i = 0; i < count; i++)
     {
-        printf("|%-14.14s|%12d|\n", player[i].username, player[i].score);
+        printf("|%-14.14s|%12d|%19s|\n", player[i].username, player[i].score, player[i].diffculty);
     }
-    puts("=============================");
+    puts("===================================================");
     fclose(fp);
 }
 
@@ -734,10 +766,12 @@ int main()
     user = (Person *)malloc(sizeof(Person));
     enemy = (Enemy *)malloc(sizeof(Enemy));
     char confirmation;
-    printLogo();
+    
 
     do
-    {
+    {   
+        clearScreen();
+        printLogo();
         menu();
         printf("Enter your choice: ");
         scanf(" %c", &confirmation);
@@ -746,8 +780,10 @@ int main()
         {
         case 'p':
             playGame();
+            stop = 0;
             break;
         case 'l':
+            clearScreen();
             leaderboard();
             puts("Press any key to continue...");
             getchar();
@@ -758,7 +794,7 @@ int main()
             getchar();
             break;
         case 'q':
-            puts("Thanks for playing");
+            quitGame();
             return 0;
         default:
             puts("Invalid choice!");
