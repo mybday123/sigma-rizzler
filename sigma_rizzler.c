@@ -534,9 +534,9 @@ void playerTurn(Enemy *enemy, int round)
         }
         else{
             clearScreen();
-            Sleep(1000);
+            SLEEP(1000);
             printf("You use Skibidi Toilet to ran away with %d aura\n", user->score);
-            Sleep(1000);
+            SLEEP(1000);
              if (user->score >= 1000 && user->score <2000)
             {
              printf("Hmmm, not bad than i thought!\n");
@@ -549,10 +549,10 @@ void playerTurn(Enemy *enemy, int round)
              {
              printf("OMG, YOU'RE SO SIGMA!\n");
             }
-            Sleep(1000);
+            SLEEP(1000);
             printf("Saving your aura in the leaderboard...\n");
              if(user->score > 0) save_score(*user);
-            Sleep(1000);
+            SLEEP(1000);
             printf("Press any key to continue...");
             getchar();
         }
@@ -562,21 +562,22 @@ void playerTurn(Enemy *enemy, int round)
 
 void deathText(){
      const char *DEATHLOGO = 
- "__     __   ____    _    _     _____    _____   ______   _____\n"  
- "\\ \\   / /  / __ \\  | |  | |   |  __ \\  |_   _| |  ____| |  __ \\\n"
- " \\ \\_/ /  | |  | | | |  | |   | |  | |   | |   | |__    | |  | |\n"
- "  \\   /   | |  | | | |  | |   | |  | |   | |   |  __|   | |  | |\n"
- "   | |    | |__| | | |__| |   | |__| |  _| |_  | |____  | |__| |\n"
- "   |_|     \\____/   \\____/    |_____/  |_____| |______| |_____/\n\n";
- clearScreen();
- printf(DEATHLOGO);
- Sleep(1000);
- printf("Not so Skibidi\n");
- Sleep(1000);
-printf("Saving your aura in the leaderboard.....\n");
-Sleep(1000);
-printf("Press any key to continue...");
- getchar();
+    "__     __   ____    _    _     _____    _____   ______   _____\n"  
+    "\\ \\   / /  / __ \\  | |  | |   |  __ \\  |_   _| |  ____| |  __ \\\n"
+    " \\ \\_/ /  | |  | | | |  | |   | |  | |   | |   | |__    | |  | |\n"
+    "  \\   /   | |  | | | |  | |   | |  | |   | |   |  __|   | |  | |\n"
+    "   | |    | |__| | | |__| |   | |__| |  _| |_  | |____  | |__| |\n"
+    "   |_|     \\____/   \\____/    |_____/  |_____| |______| |_____/\n\n";
+    
+    clearScreen();
+    printf(DEATHLOGO);
+    SLEEP(1000);
+    printf("Not so Skibidi\n");
+    SLEEP(1000);
+    printf("Saving your aura in the leaderboard.....\n");
+    SLEEP(1000);
+    printf("Press any key to continue...");
+    getchar();
 }
 void resetPlayer()
 {
@@ -644,7 +645,7 @@ void playGame()
         turn = 1;
         while (defeatedEnemy != 1)
         {
-            Sleep(1000 * 2);
+            SLEEP(1000 * 2);
             clearScreen();
             if (round % 3 == 0)
                 takeTurn(round);
