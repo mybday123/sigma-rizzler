@@ -66,23 +66,13 @@ void freeMemory(){
     free(user);
     free(enemy);
 }
-/*just checking if the save score function was working properly*/
-Enemy enemies[5] =
-    {
-        {"Ambatron", 1, 1, 500, 0, 0},
-        {"Rusdi", 1, 1, 1000, 0, 0},
-        {"Ambatukers", 1, 1, 1500, 0, 0},
-        {"Ngamutron", 1, 1, 2000, 0, 0},
-        {"Gambatron", 1, 1, 2500, 0, 0}};
 
-
-// Enemy enemies[5] =
-//     {
-//         {"Ambatron", 100, 100, 500, 0, 0},
-//         {"Rusdi", 120, 120, 1000, 0, 0},
-//         {"Ambatukers", 140, 140, 1500, 0, 0},
-//         {"Ngamutron", 160, 160, 2000, 0, 0},
-//         {"Gambatron", 180, 180, 2500, 0, 0}};
+Enemy enemies[5] = {
+        {"Ambatron", 100, 100, 500, 0, 0},
+        {"Rusdi", 120, 120, 1000, 0, 0},
+        {"Ambatukers", 140, 140, 1500, 0, 0},
+        {"Ngamutron", 160, 160, 2000, 0, 0},
+        {"Gambatron", 180, 180, 2500, 0, 0}};
 
 void clearScreen()
 {
@@ -582,19 +572,11 @@ void deathText(){
 }
 void resetPlayer()
 {
-    // user->abundant = 0;
-    // user->poison = 0;
-    // user->poison_counter = 0;
-    // user->isVulnerable = 0;
-    // user->health = 100;
-
-/*same with here just checking if the save score is working*/
-     user->abundant = 0;
+    user->abundant = 0;
     user->poison = 0;
     user->poison_counter = 0;
     user->isVulnerable = 0;
-    user->health = 1;
-    
+    user->health = 100;
 }
 
 void playGame()
