@@ -1,12 +1,12 @@
 // SIGMA RIZZLER
 
 /*
- *   Problem saat ini :
- *   - Saat healing harus atur agar tidak bentrok
- *   - Saat attack harus atur juga agar tidak bentrok buffnya dengan user
- *
- */
 
+ Progressnya sejauh ini :
+    Kami sudah membuat gameplay sederhana dari game Sigma Rizzler yang akan kami tambahkan lagi beberapa mekanisme
+    agar game yang dibuat menjadi lebih menarik, seperti chatbox yang interaktif dan juga fitur fitur menarik lainnya
+
+ */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -61,18 +61,19 @@ typedef struct
 
 Person *user;
 Enemy *enemy;
-//free the memory
-void freeMemory(){
+// free the memory
+void freeMemory()
+{
     free(user);
     free(enemy);
 }
 
 Enemy enemies[5] = {
-        {"Ambatron", 100, 100, 500, 0, 0},
-        {"Rusdi", 120, 120, 1000, 0, 0},
-        {"Ambatukers", 140, 140, 1500, 0, 0},
-        {"Ngamutron", 160, 160, 2000, 0, 0},
-        {"Gambatron", 180, 180, 2500, 0, 0}};
+    {"Ambatron", 100, 100, 500, 0, 0},
+    {"Rusdi", 120, 120, 1000, 0, 0},
+    {"Ambatukers", 140, 140, 1500, 0, 0},
+    {"Ngamutron", 160, 160, 2000, 0, 0},
+    {"Gambatron", 180, 180, 2500, 0, 0}};
 
 void clearScreen()
 {
@@ -340,17 +341,18 @@ int checkCondition()
         return 0;
     }
 }
-void quitGame(){
+void quitGame()
+{
     clearScreen();
-    const char *quitText = 
-    " /$$$$$$$$ /$$   /$$ /$$   /$$       /$$$$$$$  /$$$$$$$$ /$$     /$$  /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$\n"
-    "|__  $$__/| $$  | $$| $$  / $$      | $$__  $$| $$_____/|  $$   /$$/ /$$__  $$| $$$ | $$ /$$__  $$| $$_____/\n"
-    "   | $$   | $$  | $$|  $$/ $$/      | $$  \\ $$| $$       \\  $$ /$$/ | $$  \\ $$| $$$$| $$| $$  \\__/| $$      \n"
-    "   | $$   | $$$$$$$$ \\  $$$$/       | $$$$$$$ | $$$$$     \\  $$$$/  | $$  | $$| $$ $$ $$| $$      | $$$$$   \n"
-    "   | $$   | $$__  $$  >$$  $$       | $$__  $$| $$__/      \\  $$/   | $$  | $$| $$  $$$$| $$      | $$__/   \n"
-    "   | $$   | $$  | $$ /$$/\\  $$      | $$  \\ $$| $$          | $$    | $$  | $$| $$\\  $$$| $$    $$| $$      \n"
-    "   | $$   | $$  | $$| $$  \\ $$      | $$$$$$$/| $$$$$$$$    | $$    |  $$$$$$/| $$ \\  $$|  $$$$$$/| $$$$$$$$\n"
-    "   |__/   |__/  |__/|__/  |__/      |_______/ |________/    |__/     \\______/ |__/  \\__/ \\______/ |________/\n";
+    const char *quitText =
+        " /$$$$$$$$ /$$   /$$ /$$   /$$       /$$$$$$$  /$$$$$$$$ /$$     /$$  /$$$$$$  /$$   /$$  /$$$$$$  /$$$$$$$$\n"
+        "|__  $$__/| $$  | $$| $$  / $$      | $$__  $$| $$_____/|  $$   /$$/ /$$__  $$| $$$ | $$ /$$__  $$| $$_____/\n"
+        "   | $$   | $$  | $$|  $$/ $$/      | $$  \\ $$| $$       \\  $$ /$$/ | $$  \\ $$| $$$$| $$| $$  \\__/| $$      \n"
+        "   | $$   | $$$$$$$$ \\  $$$$/       | $$$$$$$ | $$$$$     \\  $$$$/  | $$  | $$| $$ $$ $$| $$      | $$$$$   \n"
+        "   | $$   | $$__  $$  >$$  $$       | $$__  $$| $$__/      \\  $$/   | $$  | $$| $$  $$$$| $$      | $$__/   \n"
+        "   | $$   | $$  | $$ /$$/\\  $$      | $$  \\ $$| $$          | $$    | $$  | $$| $$\\  $$$| $$    $$| $$      \n"
+        "   | $$   | $$  | $$| $$  \\ $$      | $$$$$$$/| $$$$$$$$    | $$    |  $$$$$$/| $$ \\  $$|  $$$$$$/| $$$$$$$$\n"
+        "   |__/   |__/  |__/|__/  |__/      |_______/ |________/    |__/     \\______/ |__/  \\__/ \\______/ |________/\n";
     printf(quitText);
     puts("\nPress Enter to exit.");
     getchar();
@@ -462,22 +464,24 @@ void enemyTurn(int round)
         {
             amount = heal(round);
             printf("The rizzler use healing from Ohio and regen %d HP\n", amount);
-        }  
+        }
     }
     else
     {
         amount = attack(round);
         printf("The rizzler rizzed you with %d GYATT damage\n", amount);
     }
-    
 }
 void save_score(Person player)
 {
     FILE *fp = fopen("scoreboard.save", "a");
-    if (diff == easy) strcpy(player.diffculty,"NPC");
-    if (diff == normal) strcpy(player.diffculty,"SIGMA");
-    if (diff == hard) strcpy(player.diffculty,"GIGA-CHAD");
-    fprintf(fp, "%s#%d#%s\n", player.username, player.score,player.diffculty);
+    if (diff == easy)
+        strcpy(player.diffculty, "NPC");
+    if (diff == normal)
+        strcpy(player.diffculty, "SIGMA");
+    if (diff == hard)
+        strcpy(player.diffculty, "GIGA-CHAD");
+    fprintf(fp, "%s#%d#%s\n", player.username, player.score, player.diffculty);
     fclose(fp);
 }
 
@@ -498,7 +502,7 @@ void playerTurn(Enemy *enemy, int round)
              "(G)ive up");
         scanf("%c", &decision);
         getchar();
-        if (!strchr("hasgHASG", decision)) 
+        if (!strchr("hasgHASG", decision))
         {
             printf("Ermmm, What the Sigma?\n");
         }
@@ -520,29 +524,32 @@ void playerTurn(Enemy *enemy, int round)
     case 'g':
         stop = 1;
         user->health = 0;
-        if(user->score ==0){
+        if (user->score == 0)
+        {
             printf("\"-69696969 aura\" ahh moment\n");
         }
-        else{
+        else
+        {
             clearScreen();
             SLEEP(1000);
             printf("You use Skibidi Toilet to ran away with %d aura\n", user->score);
             SLEEP(1000);
-             if (user->score >= 1000 && user->score <2000)
+            if (user->score >= 1000 && user->score < 2000)
             {
-             printf("Hmmm, not bad than i thought!\n");
-             }
-             else if (user->score >=2000 && user->score < 3000)
+                printf("Hmmm, not bad than i thought!\n");
+            }
+            else if (user->score >= 2000 && user->score < 3000)
             {
-             printf("Wow, great job!\n");
-             }
-             else if (user->score >=3000)
-             {
-             printf("OMG, YOU'RE SO SIGMA!\n");
+                printf("Wow, great job!\n");
+            }
+            else if (user->score >= 3000)
+            {
+                printf("OMG, YOU'RE SO SIGMA!\n");
             }
             SLEEP(1000);
             printf("Saving your aura in the leaderboard...\n");
-             if(user->score > 0) save_score(*user);
+            if (user->score > 0)
+                save_score(*user);
             SLEEP(1000);
             printf("Press any key to continue...");
             getchar();
@@ -551,15 +558,16 @@ void playerTurn(Enemy *enemy, int round)
     }
 }
 
-void deathText(){
-     const char *DEATHLOGO = 
-    "__     __   ____    _    _     _____    _____   ______   _____\n"  
-    "\\ \\   / /  / __ \\  | |  | |   |  __ \\  |_   _| |  ____| |  __ \\\n"
-    " \\ \\_/ /  | |  | | | |  | |   | |  | |   | |   | |__    | |  | |\n"
-    "  \\   /   | |  | | | |  | |   | |  | |   | |   |  __|   | |  | |\n"
-    "   | |    | |__| | | |__| |   | |__| |  _| |_  | |____  | |__| |\n"
-    "   |_|     \\____/   \\____/    |_____/  |_____| |______| |_____/\n\n";
-    
+void deathText()
+{
+    const char *DEATHLOGO =
+        "__     __   ____    _    _     _____    _____   ______   _____\n"
+        "\\ \\   / /  / __ \\  | |  | |   |  __ \\  |_   _| |  ____| |  __ \\\n"
+        " \\ \\_/ /  | |  | | | |  | |   | |  | |   | |   | |__    | |  | |\n"
+        "  \\   /   | |  | | | |  | |   | |  | |   | |   |  __|   | |  | |\n"
+        "   | |    | |__| | | |__| |   | |__| |  _| |_  | |____  | |__| |\n"
+        "   |_|     \\____/   \\____/    |_____/  |_____| |______| |_____/\n\n";
+
     clearScreen();
     printf(DEATHLOGO);
     SLEEP(1000);
@@ -643,8 +651,9 @@ void playGame()
             if (result == 1)
             {
                 defeatedEnemy = 1;
-                if(defeatedEnemy == 1){
-                printf("Your rizz was approved by %s and it gives you %d aura\n", enemy->name, enemy->scoreObtained);
+                if (defeatedEnemy == 1)
+                {
+                    printf("Your rizz was approved by %s and it gives you %d aura\n", enemy->name, enemy->scoreObtained);
                 }
                 break;
             }
@@ -668,11 +677,13 @@ void playGame()
             else if (result == -1)
             {
                 isPlayerDie = 1;
-                if(stop == 0){
+                if (stop == 0)
+                {
                     deathText();
                 }
-                
-                if(user->score > 0) save_score(*user);
+
+                if (user->score > 0)
+                    save_score(*user);
                 break;
             }
             // Checking
@@ -686,8 +697,6 @@ int compare(const void *a, const void *b)
     return ((Person *)b)->score - ((Person *)a)->score;
 }
 
-
-
 void leaderboard()
 {
     FILE *fp = fopen("scoreboard.save", "r");
@@ -699,8 +708,8 @@ void leaderboard()
 
     Person player[500];
     int count = 0;
-  
-    puts("==================================================");                                                         
+
+    puts("==================================================");
     puts("|                 Scoreboard                    |");
     puts("==================================================");
     puts("|   Username   |    Score   |     Difficulty    |");
@@ -766,10 +775,9 @@ int main()
     user = (Person *)malloc(sizeof(Person));
     enemy = (Enemy *)malloc(sizeof(Enemy));
     char confirmation;
-    
 
     do
-    {   
+    {
         clearScreen();
         printLogo();
         menu();
@@ -800,7 +808,7 @@ int main()
             puts("Invalid choice!");
         }
     } while (confirmation != 'q');
-    //free memory
+    // free memory
     freeMemory();
     return 0;
 }
