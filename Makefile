@@ -1,7 +1,6 @@
 CC ?= gcc
 CC_WINDOWS ?= x86_64-w64-mingw32-gcc
 STRIP ?= strip
-STRIP_WINDOWS ?= x86_64-w64-mingw32-strip
 CFLAGS = -O2
 WERROR = 1
 WFLAGS = -Wall -Werror
@@ -20,7 +19,7 @@ linux:
 
 windows: 
 	$(CC_WINDOWS) $(CFLAGS) $(SRC) -o $(NAME).exe
-	$(STRIP_WINDOWS) $(NAME).exe
+	$(STRIP) $(NAME).exe
 
 clean:
 	rm -f $(NAME) $(NAME).exe
