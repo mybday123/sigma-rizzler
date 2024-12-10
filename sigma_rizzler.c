@@ -353,7 +353,7 @@ void quitGame()
         "   | $$   | $$  | $$ /$$/\\  $$      | $$  \\ $$| $$          | $$    | $$  | $$| $$\\  $$$| $$    $$| $$      \n"
         "   | $$   | $$  | $$| $$  \\ $$      | $$$$$$$/| $$$$$$$$    | $$    |  $$$$$$/| $$ \\  $$|  $$$$$$/| $$$$$$$$\n"
         "   |__/   |__/  |__/|__/  |__/      |_______/ |________/    |__/     \\______/ |__/  \\__/ \\______/ |________/\n";
-    printf(quitText);
+    printf("%s", quitText);
     puts("\nPress Enter to exit.");
     getchar();
 }
@@ -569,7 +569,7 @@ void deathText()
         "   |_|     \\____/   \\____/    |_____/  |_____| |______| |_____/\n\n";
 
     clearScreen();
-    printf(DEATHLOGO);
+    printf("%s", DEATHLOGO);
     SLEEP(1000);
     printf("Not so Skibidi\n");
     SLEEP(1000);
@@ -759,7 +759,7 @@ void printLogo()
                        " ___/ // // /_/ / /  / / ___ |\n"
                        "/____/___/\\____/_/  /_/_/  |_|\n\n";
 
-    printf(LOGO);
+    printf("%s", LOGO);
 }
 
 void menu()
