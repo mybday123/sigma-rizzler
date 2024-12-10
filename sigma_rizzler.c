@@ -462,7 +462,7 @@ void enemyTurn(int round)
         }
         else
         {
-            amount = heal(round);
+            amount = heal();
             printf("The rizzler use healing from Ohio and regen %d HP\n", amount);
         }
     }
@@ -515,7 +515,7 @@ void playerTurn(Enemy *enemy, int round)
         printf("You rizz the rizzler and do %d GYATT damage\n", amount);
         break;
     case 'h':
-        amount = heal(round);
+        amount = heal();
         printf("You got back up from the Kai Cenat and heal %d HP\n", amount);
         break;
     case 's':
