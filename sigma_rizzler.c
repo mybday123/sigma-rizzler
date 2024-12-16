@@ -1,13 +1,5 @@
 // SIGMA RIZZLER
 
-/*
-
- Progressnya sejauh ini :
-    Kami sudah membuat gameplay sederhana dari game Sigma Rizzler yang akan kami tambahkan lagi beberapa mekanisme
-    agar game yang dibuat menjadi lebih menarik, seperti chatbox yang interaktif dan juga fitur fitur menarik lainnya
-
- */
-
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
