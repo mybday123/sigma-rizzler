@@ -13,11 +13,11 @@ endif
 
 all: linux windows
 
-linux: 
+linux: $(SRC)
 	$(CC) $(CFLAGS) $(SRC) -o $(NAME)
 	$(STRIP) $(NAME)
 
-windows: 
+windows: $(SRC)
 	$(CC_WINDOWS) $(CFLAGS) $(SRC) -o $(NAME).exe
 	$(STRIP) $(NAME).exe
 
