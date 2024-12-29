@@ -73,6 +73,7 @@ void printChar(const char *s, int ms_t)
 	for (int i = 0; i < stringLen; i++)
 	{
 		putchar(s[i]);
+		fflush(stdout); // Make sure it shows immediately
 		SLEEP(ms_t);
 	}
 }
