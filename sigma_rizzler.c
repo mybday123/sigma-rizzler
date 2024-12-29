@@ -74,6 +74,7 @@ void printChar(const char *s, int ms_t)
 	{
 		putchar(s[i]);
 		SLEEP(t);
+	}
 }
 
 void clearScreen()
