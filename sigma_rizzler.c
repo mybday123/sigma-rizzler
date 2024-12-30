@@ -67,6 +67,17 @@ Enemy enemies[5] = {
     {"Ngamutron", 160, 160, 2000, 0, 0},
     {"Gambatron", 180, 180, 2500, 0, 0}};
 
+void printChar(const char *s, int ms_t)
+{
+	int stringLen = strlen(s);
+	for (int i = 0; i < stringLen; i++)
+	{
+		putchar(s[i]);
+		fflush(stdout); // Make sure it shows immediately
+		SLEEP(ms_t);
+	}
+}
+
 void clearScreen()
 {
     printf(CLEAR_SCREEN_REGEX);
