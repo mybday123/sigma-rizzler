@@ -25,6 +25,7 @@ enum Difficulty
 
 enum Difficulty diff = easy;
 int turn = 1;
+int isStoryMode = 0;
 
 // Struct of person and enemy section
 typedef struct
@@ -69,13 +70,13 @@ Enemy enemies[5] = {
 
 void printChar(const char *s, int ms_t)
 {
-	int stringLen = strlen(s);
-	for (int i = 0; i < stringLen; i++)
-	{
-		putchar(s[i]);
-		fflush(stdout); // Make sure it shows immediately
-		SLEEP(ms_t);
-	}
+    int stringLen = strlen(s);
+    for (int i = 0; i < stringLen; i++)
+    {
+        putchar(s[i]);
+        fflush(stdout); // Make sure it shows immediately
+        SLEEP(ms_t);
+    }
 }
 
 void clearScreen()
@@ -83,10 +84,18 @@ void clearScreen()
     printf(CLEAR_SCREEN_REGEX);
 }
 
-void generateEnemy()
+void generateEnemy(int levelEnemy)
 {
     srand(time(NULL));
-    Enemy newEnemy = enemies[(rand() % 5)];
+    Enemy newEnemy;
+    if (levelEnemy != -1)
+    {
+        newEnemy = enemies[levelEnemy];
+    }
+    else
+    {
+        newEnemy = enemies[(rand() % 5)];
+    }
     newEnemy.health = newEnemy.max_health;
     newEnemy.poison = 0;
     newEnemy.poison_counter = 0;
@@ -178,17 +187,29 @@ void pregameAnnouncement(int round)
                 user->abundant = 1;
             }
         }
-        else if (notice >= 7 && notice <= 9)
+        else if (notice >= 7 && notice <= 10)
         {
-            if (notice <= 8)
+            if (diff == easy)
             {
-                printf("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n");
-                enemy->poison = 1;
-                enemy->poison_counter = 2;
+                if (notice <= 10)
+                {
+                    printf("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n");
+                    enemy->poison = 1;
+                    enemy->poison_counter = 2;
+                }
+            }
+            else
+            {
+                if (notice <= 7)
+                {
+                    printf("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n");
+                    enemy->poison = 1;
+                    enemy->poison_counter = 2;
+                }
             }
             if (diff == hard || diff == normal)
             {
-                if (notice > 8)
+                if (notice > 9)
                 {
                     printf("You have been afflicted by poison! You will take damage overtime for 3 rounds\n");
                     user->poison = 1;
@@ -225,7 +246,7 @@ int attack(int round)
 {
     srand(time(NULL));
 
-    int random = (rand() % 16) + 5;
+    int random = (rand() % 12) + 10;
     int atk = random;
     int buff_atk = atk;
     if (enemy->isVulnerable == 1 && turn == 1 && round >= 3)
@@ -371,16 +392,16 @@ void getPlayerName()
         switch (rejectionLevel)
         {
         case 1:
-            printf("Hey, you're so skibidi, can i get your name ?\n");
+            printChar("Hey, you're so skibidi, can i get your name ?\n", 50);
             break;
         case 2:
-            printf("Hey, you're more skibidii than i think, so i need your name!\n");
+            printf("Hey, you're more skibidii than i think, so i need your name!\n", 50);
             break;
         case 3:
-            printf("HEYY, I NEED YOUR NAME PLEASE \?\?!?!\n");
+            printf("HEYY, I NEED YOUR NAME PLEASE \?\?!?!\n", 50);
             break;
         default:
-            printf("To be honest, i really need your name, so please!!\n");
+            printf("To be honest, i really need your name, so please!!\n", 50);
             break;
         }
         printf("Your answer (y/n): ");
@@ -392,7 +413,7 @@ void getPlayerName()
     int isNameFilled = 0;
     do
     {
-        printf("Add your username, skibidi soldier : ");
+        printChar("Add your username, skibidi soldier : ", 10);
         char temp[10];
         scanf("%9s", temp);
         int ch;
@@ -494,9 +515,13 @@ void playerTurn(Enemy *enemy, int round)
     char decision = ' ';
     print_user_condition();
     printf("Player \n");
+    strcpy(user->username, "Rusdi");
     printf("Name : %s\n", user->username);
     printf("Health : %d\n", user->health);
-    printf("Score : %d\n", user->score);
+    if (isStoryMode != 1)
+    {
+        printf("Score : %d\n", user->score);
+    }
     do
     {
         puts("(H)eal\n"
@@ -527,7 +552,7 @@ void playerTurn(Enemy *enemy, int round)
     case 'g':
         stop = 1;
         user->health = 0;
-        if (user->score == 0)
+        if (user->score == 0 || isStoryMode == 1)
         {
             printf("\"-69696969 aura\" ahh moment\n");
         }
@@ -633,7 +658,7 @@ void playGame()
     do
     {
         int defeatedEnemy = 0;
-        generateEnemy();
+        generateEnemy(-1);
         int round = 1;
         resetPlayer();
         turn = 1;
@@ -734,18 +759,18 @@ void difficultyInformation()
 {
     clearScreen();
     printf("Difficulty of :\n");
-    printf("1. NPC\n");
+    printChar("1. NPC\n", 10);
     printf("- You will only get 50%% of the score from the enemy of this difficulty\n");
     printf("- The enemy will have so many debuff but no buff for the enemy\n");
     printf("- Enemy's attack will be decreased by 10-20%%\n");
     printf("- Enemy's heal will be decreased by 10-20%%\n");
-    printf("2. SIGMA\n");
+    printChar("2. SIGMA\n", 10);
     printf("- You will only get 70%% of the score from the enemy of this difficulty\n");
     printf("- You will have more chance to be afflicted by poison for 2 turns\n");
     printf("- Enemy's attack will be normal\n");
     printf("- Enemy's heal will be normal\n");
     printf("\n");
-    printf("3. GIGA-CHAD\n");
+    printChar("3. GIGA-CHAD\n", 10);
     printf("- You will only get 100%% of the score from the enemy of this difficulty\n");
     printf("- You will have more chance to be afflicted by poison for 2 turns\n");
     printf("- You will have more chance to be vulnerable for 1 round\n");
@@ -767,10 +792,247 @@ void printLogo()
 
 void menu()
 {
-    puts("(P)lay game\n"
-         "(L)eaderboard\n"
-         "(D)ifficulty Information\n"
-         "(Q)uit game");
+    printChar("(S)tory mode\n(P)lay game\n"
+              "(L)eaderboard\n"
+              "(D)ifficulty Information\n"
+              "(Q)uit game\n",
+              20);
+}
+
+void storyMode()
+{
+    clearScreen();
+    int isPlayerDie = 0;
+    int defeatedEnemy = 0;
+    int round = 1;
+    turn = 1;
+    printChar("Suatu hari, rusdi, seorang pejuang intergalaktik pergi untuk menemui temannya, mas ambatukers, yang juga seorang pejuang intergalaktik teman baik rusdi.\n", 80);
+    getchar();
+    printChar("“Hai amba! Cepat buka pintunya dasar pengoc-“", 80);
+    getchar();
+    clearScreen();
+    printChar("Sebelum menyelesaikan apa yang ingin dia katakan, sebuah tembakan laser menembus pintunya hampir mengenai rusdi", 80);
+    getchar();
+    printChar("“Hey, kau gila ya?ˮ Rusdi langsung mendobrak buka pintunya, yang ia temui bukanlah amba yang ia kenal, namun sebuah robot imitasi si amba", 80);
+    getchar();
+    printChar(" “A- apa apaan… dimana amba yang kukenal? Kembalikan dia!ˮ", 80);
+    getchar();
+    clearScreen();
+    printChar("Fight 1 with ambatron\n", 80);
+    fflush(stdout);
+    generateEnemy(0);
+    resetPlayer();
+    while (defeatedEnemy != 1)
+    {
+        SLEEP(1000 * 2);
+        clearScreen();
+        if (round % 3 == 0)
+            takeTurn(round);
+        applyPoison();
+        printf("Enemy %s\n", enemy->name);
+        printf("Enemy's health : %d\n", enemy->health);
+        printf("\n-----------------------------------------------------------------------------------------------------\n\n");
+        playerTurn(enemy, round);
+        SLEEP(1000 * 2);
+        int result = checkCondition();
+        // Checking
+        if (result == 1)
+        {
+            defeatedEnemy = 1;
+            break;
+        }
+        else if (result == -1)
+        {
+            isPlayerDie = 1;
+            break;
+        }
+        // Checking
+
+        enemyTurn(round);
+        SLEEP(1000 * 2);
+        result = checkCondition();
+
+        // Checking
+        if (result == 1)
+        {
+            defeatedEnemy = 1;
+            break;
+        }
+        else if (result == -1)
+        {
+            isPlayerDie = 1;
+            break;
+        }
+        // Checking
+        round++;
+    }
+    if (isPlayerDie == 1)
+    {
+        deathText();
+        return;
+    }
+    clearScreen();
+    printChar("Setelah pertarungan usai, dia mendapatkan bahwa orangˮ yang dikenali mas rusdi telah dikutuk menjadi robotron oleh gamba.\n", 80);
+    getchar();
+    printChar("“Sial! Guru ngamu pasti terkena kutukan bodoh ini juga!ˮ\n", 80);
+    getchar();
+    printChar("karena khawatir akan gurunya, Dirinya pun bergegas ke tempat gurunya, Mas ngamu.\n", 80);
+    getchar();
+    printChar("Setelah dirinya sampai, dia juga disambut Hal yang sama, gurunya menjadi sebuah robot yang dipanggil ngamutron.\n", 80);
+    getchar();
+    clearScreen();
+    printChar("Fight 2 with ngamutron\n", 50);
+    fflush(stdout);
+    defeatedEnemy = 0;
+    generateEnemy(2);
+    round = 1;
+    resetPlayer();
+    turn = 1;
+    while (defeatedEnemy != 1)
+    {
+        SLEEP(1000 * 2);
+        clearScreen();
+        if (round % 3 == 0)
+            takeTurn(round);
+        applyPoison();
+        int result = checkCondition();
+        // Checking
+        if (result == 1)
+        {
+            defeatedEnemy = 1;
+            break;
+        }
+        else if (result == -1)
+        {
+            isPlayerDie = 1;
+            break;
+        }
+        printf("Enemy %s\n", enemy->name);
+        printf("Enemy's health : %d\n", enemy->health);
+        printf("\n-----------------------------------------------------------------------------------------------------\n\n");
+        playerTurn(enemy, round);
+        SLEEP(1000 * 2);
+        result = checkCondition();
+        // Checking
+        if (result == 1)
+        {
+            defeatedEnemy = 1;
+            break;
+        }
+        else if (result == -1)
+        {
+            isPlayerDie = 1;
+            break;
+        }
+        // Checking
+
+        enemyTurn(round);
+        SLEEP(1000 * 2);
+        result = checkCondition();
+
+        // Checking
+        if (result == 1)
+        {
+            defeatedEnemy = 1;
+            break;
+        }
+        else if (result == -1)
+        {
+            isPlayerDie = 1;
+            break;
+        }
+        // Checking
+        round++;
+    }
+    if (isPlayerDie == 1)
+    {
+        deathText();
+        return;
+    }
+    clearScreen();
+    printChar("Gurunya pun juga terkapar di tanah pingsan, namun di samping badan gurunya itu, dia mendapatkan peta ke markas gamba. \n", 80);
+    getchar();
+    printChar("Dia Tanpa menghabiskan banyak waktu, dia pergi ke markas gamba. \n", 80);
+    getchar();
+    printChar("Sesampainya disana, dia mendengar suara gamba “Oh pahlawan rusdi Dari planet sigma, anda terlalu lambat,\n", 80);
+    getchar();
+    printChar("Dunia ini sudah kuubah menjadi robotron, kau takkan bisa menghentikanku.\n", 80);
+    getchar();
+    clearScreen();
+    printChar("Bahkan diriku sendiri sudah kuubah menjadi robotron, bentuk makhluk hidup yang paling sempurna di alam semesta!\n", 80);
+    getchar();
+    printChar("Berterimakasihlah padaku Rusdi!ˮ\n", 80);
+    getchar();
+    printChar("Rusdi yang sangat marah pun langsung bertarung dengannya.ˮ\n", 80);
+    getchar();
+    clearScreen();
+    printChar("Fight 3 with ngamutron\n", 50);
+    getchar();
+    fflush(stdout);
+    defeatedEnemy = 0;
+    round = 1;
+    turn = 1;
+    generateEnemy(4);
+    resetPlayer();
+    while (defeatedEnemy != 1)
+    {
+        SLEEP(1000 * 2);
+        clearScreen();
+        if (round % 3 == 0)
+            takeTurn(round);
+        applyPoison();
+        printf("Enemy %s\n", enemy->name);
+        printf("Enemy's health : %d\n", enemy->health);
+        printf("\n-----------------------------------------------------------------------------------------------------\n\n");
+        playerTurn(enemy, round);
+        SLEEP(1000 * 2);
+        int result = checkCondition();
+        // Checking
+        if (result == 1)
+        {
+            defeatedEnemy = 1;
+            break;
+        }
+        else if (result == -1)
+        {
+            isPlayerDie = 1;
+            break;
+        }
+        // Checking
+
+        enemyTurn(round);
+        SLEEP(1000 * 2);
+        result = checkCondition();
+
+        // Checking
+        if (result == 1)
+        {
+            defeatedEnemy = 1;
+            break;
+        }
+        else if (result == -1)
+        {
+            isPlayerDie = 1;
+            break;
+        }
+        // Checking
+        round++;
+    }
+    if (isPlayerDie == 1)
+    {
+        deathText();
+        return;
+    }
+    clearScreen();
+    printChar("“Tidak!!!!!ˮ\n", 70);
+    getchar();
+    printChar("Gamba pun berteriak layaknya penjahat tahun 90-an saat kalah. \n", 70);
+    getchar();
+    printChar("Dan dengan kemenangan itu, semua makhluk hidup yang diubah menjadi robotron kembali menjadi normal, Dan untuk kesekian Kalinya Rusdi menjadi pahlawan kosmik terbaik di alam semesta\n", 100);
+    getchar();
+    fflush(stdout);
+    clearScreen();
+    printChar("Terimakasih telah memainkan story mode yang telah kami buat ini", 80);
 }
 
 int main()
@@ -784,11 +1046,16 @@ int main()
         clearScreen();
         printLogo();
         menu();
-        printf("Enter your choice: ");
+        printChar("Enter your choice: ", 10);
         scanf(" %c", &confirmation);
         getchar();
         switch (tolower(confirmation))
         {
+        case 's':
+            isStoryMode = 1;
+            storyMode();
+            isStoryMode = 0;
+            break;
         case 'p':
             playGame();
             stop = 0;
