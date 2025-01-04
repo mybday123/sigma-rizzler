@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -13,6 +14,15 @@
 #include <unistd.h>
 #define SLEEP(ms) usleep((ms) * 1000)
 #endif
+
+#define UP 72
+#define DOWN 80
+#define ENTER 13
+#define LEFT 75
+#define RIGHT 77
+#define ESC 27
+
+#define PAGE_SIZE 10
 
 #define CLEAR_SCREEN_REGEX "\e[1;1H\e[2J"
 
@@ -25,7 +35,7 @@ enum Difficulty
 
 enum Difficulty diff = easy;
 int turn = 1;
-int isStoryMode = 0;
+
 
 // Struct of person and enemy section
 typedef struct
@@ -37,7 +47,7 @@ typedef struct
     int abundant;
     int poison_counter;
     int isVulnerable;
-    char diffculty[20];
+    char difficulty[20];
 } Person;
 
 typedef struct
@@ -54,6 +64,8 @@ typedef struct
 
 Person *user;
 Enemy *enemy;
+
+int modeStory = 0;
 // free the memory
 void freeMemory()
 {
@@ -67,6 +79,29 @@ Enemy enemies[5] = {
     {"Ambatukers", 140, 140, 1500, 0, 0},
     {"Ngamutron", 160, 160, 2000, 0, 0},
     {"Gambatron", 180, 180, 2500, 0, 0}};
+
+ 
+ int menuSize;
+ int stop = 0;
+int key(){
+    int c = getch();
+    if (c == UP) return 1;
+    else if(c == DOWN) return 2;
+    else if(c == ENTER) return 3;
+    else return 0;
+}
+
+void arrowMenu(const char *string[], int *menuSize , int select){
+    for(int i = 0; i < *menuSize; i++){
+        if(i+1 == select){
+            printf("-> %s", string[i]);
+        }
+        else{
+            printf("   %s", string[i]);
+        }
+    }
+}
+
 
 void printChar(const char *s, int ms_t)
 {
@@ -133,7 +168,8 @@ int buff()
         srand(time(NULL));
         int buff = (rand() % 6) + 5;
 
-        printf("The arrow of the hunt has assisted you with a buff of %d\n", buff);
+        printChar("The arrow of the hunt has assisted you with a buff of ", 20);
+        printf("%d\n", buff);
         return buff;
     }
     else
@@ -145,14 +181,14 @@ void pregameAnnouncement(int round)
 {
     if (round % 3 == 0)
     {
-        printf("Both buff and debuffs for you and the enemy are active! Push on with care!\n");
+        printChar("Both buff and debuffs for you and the enemy are active! Push on with care!\n", 20);
         srand(time(NULL));
         int notice = (rand() % 11);
         if (notice <= 3)
         {
             if (diff == easy || diff == normal)
             {
-                printf("Enemy is vulnurable! Bring in the Damage!\n");
+                printChar("Enemy is vulnurable! Bring in the Damage!\n", 20);
                 enemy->isVulnerable = 1;
                 return;
             }
@@ -160,12 +196,12 @@ void pregameAnnouncement(int round)
             {
                 if (notice <= 1)
                 {
-                    printf("Enemy is vulnurable! Bring in the Damage!\n");
+                    printChar("Enemy is vulnurable! Bring in the Damage!\n", 20);
                     enemy->isVulnerable = 1;
                 }
                 else
                 {
-                    printf("You are vulnurable! Bring in the Damage!\n");
+                    printChar("You are vulnurable! Bring in the Damage!\n", 20);
                     user->isVulnerable = 1;
                 }
             }
@@ -176,14 +212,14 @@ void pregameAnnouncement(int round)
             {
                 if (notice == 6)
                 {
-                    printf("The enemy has been blessed by Goddess of Abundance! Healing now has improved for this round!\n");
+                    printChar("The enemy has been blessed by Goddess of Abundance! Healing now has improved for this round!\n",20);
                     enemy->abundant = 1;
                     return;
                 }
             }
             if (notice <= 5)
             {
-                printf("Goddess of Abundance have blessed you! Healing now has improved for this round!\n");
+                printChar("Goddess of Abundance have blessed you! Healing now has improved for this round!\n",20);
                 user->abundant = 1;
             }
         }
@@ -193,7 +229,7 @@ void pregameAnnouncement(int round)
             {
                 if (notice <= 10)
                 {
-                    printf("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n");
+                    printChar("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n", 20);
                     enemy->poison = 1;
                     enemy->poison_counter = 2;
                 }
@@ -202,7 +238,7 @@ void pregameAnnouncement(int round)
             {
                 if (notice <= 7)
                 {
-                    printf("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n");
+                    printChar("The enemy have been afflicted by poison! They will take damage overtime for 3 rounds\n", 20);
                     enemy->poison = 1;
                     enemy->poison_counter = 2;
                 }
@@ -211,7 +247,7 @@ void pregameAnnouncement(int round)
             {
                 if (notice > 9)
                 {
-                    printf("You have been afflicted by poison! You will take damage overtime for 3 rounds\n");
+                    printChar("You have been afflicted by poison! You will take damage overtime for 3 rounds\n", 20);
                     user->poison = 1;
                     user->poison_counter = 2;
                 }
@@ -225,7 +261,10 @@ void handlePoison(int *hp, int *poison_counter, int *poison)
 {
     int poison_damage = gachaPoison();
     *hp -= poison_damage;
-    printf("Poison damage of %d applied! Remaining poison rounds: %d\n", poison_damage, *poison_counter);
+    printChar("Poison damage of ", 20);
+    printf("%d ", poison_damage); 
+    printChar("has been applied! Remaining poison rounds: ", 20);
+    printf("%d\n", *poison_counter);
     (*poison_counter)--;
     if (*poison_counter == 0)
     {
@@ -235,10 +274,14 @@ void handlePoison(int *hp, int *poison_counter, int *poison)
 
 void applyPoison()
 {
-    if (user->poison > 0 && user->poison == 1)
+    if (user->poison > 0 && user->poison == 1){
         handlePoison(&user->health, &user->poison_counter, &user->poison);
-    else if (enemy->poison > 0 && enemy->poison == 1)
+        SLEEP(500);
+    }
+    else if (enemy->poison > 0 && enemy->poison == 1){
         handlePoison(&enemy->health, &enemy->poison_counter, &enemy->poison);
+        SLEEP(500);
+    }
 }
 // Grouped by poison
 
@@ -295,7 +338,7 @@ int heal()
             if (enemy->poison == 1)
             {
                 enemy->poison = 0;
-                printf("Enemy's poison has been cured!\n");
+                printChar("Enemy's poison has been cured!\n", 20);
             }
         }
         if (enemy->health + heal > enemy->max_health)
@@ -317,7 +360,7 @@ int heal()
         if (user->poison == 1)
         {
             user->poison = 0;
-            printf("Poison has been cured!\n");
+            printChar("Poison has been cured!\n", 20);
         }
         user->abundant = 0;
     }
@@ -336,6 +379,7 @@ int heal()
 void takeTurn(int round)
 {
     pregameAnnouncement(round);
+    SLEEP(500);
 }
 
 int checkCondition()
@@ -378,17 +422,17 @@ void quitGame()
         "   | $$   | $$  | $$| $$  \\ $$      | $$$$$$$/| $$$$$$$$    | $$    |  $$$$$$/| $$ \\  $$|  $$$$$$/| $$$$$$$$\n"
         "   |__/   |__/  |__/|__/  |__/      |_______/ |________/    |__/     \\______/ |__/  \\__/ \\______/ |________/\n";
     printf("%s", quitText);
-    puts("\nPress Enter to exit.");
-    getchar();
+    puts("\nPress any key to continue.");
+    getch();
 }
 
 void getPlayerName()
 {
-    char agreement = ' ';
+    char agreement;
     int rejectionLevel = 1;
     do
     {
-        printf("%s", CLEAR_SCREEN_REGEX);
+        clearScreen();
         switch (rejectionLevel)
         {
         case 1:
@@ -405,14 +449,14 @@ void getPlayerName()
             break;
         }
         printf("Your answer (y/n): ");
-        scanf("%c", &agreement);
-        getchar();
+        agreement = tolower(getch());
         rejectionLevel++;
     } while (tolower(agreement) != 'y');
 
     int isNameFilled = 0;
     do
     {
+        clearScreen();
         printChar("Add your username, skibidi soldier : ", 10);
         char temp[10];
         scanf("%9s", temp);
@@ -482,130 +526,196 @@ void enemyTurn(int round)
         if (random > 5)
         {
             amount = attack(round);
-            printf("The bot rizzed you with %d gyatt damage\n", amount);
+            printChar("The bot rizzed you with ",20); printf("%d ", amount); printChar("GYATT damage\n", 20);
         }
         else
         {
             amount = heal();
-            printf("The rizzler use healing from Ohio and regen %d HP\n", amount);
+            printChar("The rizzler use healing from Ohio and regen ",20); printf("%d ", amount); printChar("HP\n", 20);
         }
     }
     else
     {
         amount = attack(round);
-        printf("The rizzler rizzed you with %d GYATT damage\n", amount);
+        printChar("The rizzler rizzed you with ",20); printf("%d ", amount); printChar("GYATT damage\n", 20);
     }
 }
 void save_score(Person player)
 {
     FILE *fp = fopen("scoreboard.save", "a");
     if (diff == easy)
-        strcpy(player.diffculty, "NPC");
+        strcpy(player.difficulty, "NPC");
     if (diff == normal)
-        strcpy(player.diffculty, "SIGMA");
+        strcpy(player.difficulty, "SIGMA");
     if (diff == hard)
-        strcpy(player.diffculty, "GIGA-CHAD");
-    fprintf(fp, "%s#%d#%s\n", player.username, player.score, player.diffculty);
+        strcpy(player.difficulty, "GIGA-CHAD");
+    fprintf(fp, "%s#%d#%s\n", player.username, player.score, player.difficulty);
     fclose(fp);
 }
 
-int stop = 0;
+
 void playerTurn(Enemy *enemy, int round)
 {
-    char decision = ' ';
-    print_user_condition();
-    printf("Player \n");
-    strcpy(user->username, "Rusdi");
-    printf("Name : %s\n", user->username);
-    printf("Health : %d\n", user->health);
-    if (isStoryMode != 1)
-    {
-        printf("Score : %d\n", user->score);
-    }
+    int  t = 0;
+    do{
+         char decision = ' ';
     do
     {
-        puts("(H)eal\n"
-             "(A)ttack\n"
-             "(S)kip\n"
-             "(G)ive up");
-        scanf("%c", &decision);
-        getchar();
+        clearScreen();
+        printf("Enemy %s\n", enemy->name);
+        printf("Enemy's health : %d\n", enemy->health);
+        printf("\n-----------------------------------------------------------------------------------------------------\n\n");
+        print_user_condition();
+        printf("Player \n");
+        if(modeStory) strcpy(user->username, "Rusdi");
+        printf("Name : %s\n", user->username);
+        printf("Health : %d\n", user->health);
+        if (!modeStory)
+        {
+            printf("Score : %d\n", user->score);
+        }
+            puts("(H)eal\n"
+                "(A)ttack\n"
+                "(S)kip\n"
+                "(G)ive up");
+            printf("Choice: ");
+        decision = tolower(getch());
         if (!strchr("hasgHASG", decision))
         {
-            printf("Ermmm, What the Sigma?\n");
+            puts("");
+            printChar("Ermmm, What the Sigma?\n", 40);
         }
     } while (!strchr("hasgHASG", decision));
     int amount = 0;
+        char yesNo;
     switch (tolower(decision))
     {
     case 'a':
+        puts("");
         amount = attack(round);
-        printf("You rizz the rizzler and do %d GYATT damage\n", amount);
+       printChar("You rizz the rizzler and do ",20); printf("%d ", amount); printChar("GYATT damage\n", 20);
         break;
     case 'h':
+        puts("");
         amount = heal();
-        printf("You got back up from the Kai Cenat and heal %d HP\n", amount);
+        printChar("You got back up from the Kai Cenat and heal ",20); printf("%d ", amount); printChar("HP\n", 20);
         break;
     case 's':
+        puts("");
+        printChar("random poeple with w GYATT passing by and making you skip the turn\n", 20);
         turn = 0;
         break;
     case 'g':
-        stop = 1;
-        user->health = 0;
-        if (user->score == 0 || isStoryMode == 1)
-        {
-            printf("\"-69696969 aura\" ahh moment\n");
+        clearScreen();
+        printChar("Are you sure?\n", 20);
+        printf("y/n: ");
+        do{
+        yesNo = tolower(getch());
+        if(yesNo == 'y'){
+            if(modeStory){
+                stop = 1;
+                user->health = 0;
+                puts("");
+                printChar(
+                    "Rusdi yang kesulitan bertarung memilih untuk kabur dari pertarungannya melawan\n"
+                    "musuhnya, ia kembali ke rumahnya, depresi akan dunia yang sudah berubah\n" 
+                    "menjadi robotron, termasuk orang-orang kesayangannya yang bahkan dirinya\n" 
+                    "merasa  tidak mampu untuk mengalahkannya . tak kuasa mengalahkan gamba si\n" 
+                    "musuh terakhir, dirinya yang sedang terlelap di kesedihan perlahan juga berubah\n" 
+                    "menjadi robotron. Akhir Rusdi yang harusnya menyelamatkan dunia, malah\n"
+                    "menjadi pengecut yang tidak berani mengalahkan musuhnya dan hancur olehnya\n" 
+                    "menjadi hal yang harusnya dia kalahkan.\n"
+                 , 50);
+                 printf("Press any key to continue...");
+                 getchar();
+            }
+            else{
+                stop = 1;
+            user->health = 0;
+            if (user->score == 0 && !modeStory)
+            {
+                puts("");
+                printChar("\"-69696969 aura\" ahh moment\n", 20);
+            }
+            else
+            {
+                clearScreen();
+                SLEEP(1000);
+                printChar("You use Skibidi Toilet to ran away with ", 20);
+                printf("%d aura\n", user->score);
+                SLEEP(1000);
+                if (user->score >= 1000 && user->score < 2000)
+                {
+                    printChar("Hmmm, not bad than i thought!\n", 20);
+                }
+                else if (user->score >= 2000 && user->score < 3000)
+                {
+                    printChar("Wow, great job!\n", 20);
+                }
+                else if (user->score >= 3000)
+                {
+                    printChar("OMG, YOU'RE SO SIGMA!\n", 20);
+                }
+                SLEEP(1000);
+                printChar("Saving your aura in the leaderboard...\n", 20);
+                if (user->score > 0)
+                    save_score(*user);
+                SLEEP(1000);
+                printf("Press any key to continue...");
+                getchar();
+            }
+            }
+            return;
         }
-        else
-        {
-            clearScreen();
-            SLEEP(1000);
-            printf("You use Skibidi Toilet to ran away with %d aura\n", user->score);
-            SLEEP(1000);
-            if (user->score >= 1000 && user->score < 2000)
-            {
-                printf("Hmmm, not bad than i thought!\n");
-            }
-            else if (user->score >= 2000 && user->score < 3000)
-            {
-                printf("Wow, great job!\n");
-            }
-            else if (user->score >= 3000)
-            {
-                printf("OMG, YOU'RE SO SIGMA!\n");
-            }
-            SLEEP(1000);
-            printf("Saving your aura in the leaderboard...\n");
-            if (user->score > 0)
-                save_score(*user);
-            SLEEP(1000);
-            printf("Press any key to continue...");
-            getchar();
+        else if(yesNo == 'n'){
+            t = 1;
+            break;
         }
-        break;
+        else continue;
+        }while(tolower(getch()) != 'y');
+        continue;
     }
+        t = 0;
+    }while(t == 1);
 }
 
 void deathText()
 {
-    const char *DEATHLOGO =
+     const char *DEATHLOGO =
         "__     __   ____    _    _     _____    _____   ______   _____\n"
         "\\ \\   / /  / __ \\  | |  | |   |  __ \\  |_   _| |  ____| |  __ \\\n"
         " \\ \\_/ /  | |  | | | |  | |   | |  | |   | |   | |__    | |  | |\n"
         "  \\   /   | |  | | | |  | |   | |  | |   | |   |  __|   | |  | |\n"
         "   | |    | |__| | | |__| |   | |__| |  _| |_  | |____  | |__| |\n"
         "   |_|     \\____/   \\____/    |_____/  |_____| |______| |_____/\n\n";
-
-    clearScreen();
-    printf("%s", DEATHLOGO);
-    SLEEP(1000);
-    printf("Not so Skibidi\n");
-    SLEEP(1000);
-    printf("Saving your aura in the leaderboard.....\n");
-    SLEEP(1000);
-    printf("Press any key to continue...");
-    getchar();
+    if(modeStory){
+        clearScreen();
+        printf("%s", DEATHLOGO);
+        printChar(
+            "Tanpa diketahui olehnya, Kaki Rusdi tiba-tiba jatuh ke tanah, tak kuasa menahan\n" 
+            "Luka yang ia terima do sekujur tubuhnya, dirinya Masih ingin bertarung,\n" 
+            "menyelamatkan Dunia yang harusnya ia selamatkan, namun jatuh di hadapan\n" 
+            "musuhnya. Rusdi mencoba untuk bangun tapi tidak bisa, sampai dirinya\n" 
+            "menghembuskan nafas terakhirnya dihadapan musuhnya. Dirinya tidak pernah\n" 
+            "menyerah sampai terakhir, kamu juga kan?\n"
+        , 20);
+        printf("Press any key to continue...");
+        getchar();
+    }
+    else{
+        clearScreen();
+        printf("%s", DEATHLOGO);
+        SLEEP(1000);
+        printChar("Not so skibidi", 20);
+        puts("");
+        SLEEP(1000);
+        printChar("Saving your aura in the leaderboard.....\n", 20);
+        SLEEP(1000);
+        printf("Press any key to continue...");
+        getchar();
+    }
 }
+
 void resetPlayer()
 {
     user->abundant = 0;
@@ -613,48 +723,67 @@ void resetPlayer()
     user->poison_counter = 0;
     user->isVulnerable = 0;
     user->health = 100;
+
 }
+
+const char *diffMenu[] = {
+    "(N)PC\n",
+    "(S)IGMA\n",
+    "(G)IGA-CHAD\n",
+    "(E)xit\n"
+};
 
 void playGame()
 {
+    int select = 1;
     int isPlayerDie = 0;
     user->score = 0;
+    int t = 0;
     getPlayerName();
-    int difficultValidated = 0;
     do
     {
-        char difficult;
         clearScreen();
         printf("Information of each difficulty :\n");
         printf("NPC. Damn, be chill like an NPC bruh\n");
         printf("SIGMA. Wow, so you're a gentle SIGMA\n");
         printf("GIGA-CHAD. You're the grind king, lifting the world on your back! 🏋️‍♂️\n\n");
         printf("Choose the difficulty\n");
-        printf("(N)PC\n");
-        printf("(S)IGMA\n");
-        printf("(G)IGA-CHAD\n");
-        printf("Your choice : ");
-        scanf("%c", &difficult);
-        getchar();
-        switch (tolower(difficult))
-        {
-        case 'n':
-            diff = easy;
-            break;
-        case 's':
-            diff = normal;
-            break;
-        case 'g':
-            diff = hard;
-            break;
-        default:
-            printf("Invalid choice! Please select a valid difficulty.\n");
-            continue;
+        menuSize = sizeof(diffMenu) / sizeof(diffMenu[0]);
+        arrowMenu(diffMenu, &menuSize, select);
+        switch(key()){
+            case 1:
+                select--;
+                if (select < 1) select = menuSize;
+                break;
+            case 2:
+                select++;
+                if (select > menuSize) select = 1;
+                break;
+            case 3:
+                switch(select){
+                    case 1:
+                        diff = easy;
+                        break;
+                    case 2:
+                        diff = normal;
+                        break;
+                    case 3:
+                        diff = hard;
+                        break;
+                    case 4:
+                        return;
+                    default:
+                    break;
+                }
+                t=0;
+                break;
+            default:
+                t = 1;
+                break;
         }
-        difficultValidated = 1;
+    } while (t == 1);
 
-    } while (difficultValidated == 0);
-
+    printChar("Entering a battle", 10);
     do
     {
         int defeatedEnemy = 0;
@@ -664,14 +793,11 @@ void playGame()
         turn = 1;
         while (defeatedEnemy != 1)
         {
-            SLEEP(1000 * 2);
+            SLEEP(1000);
             clearScreen();
             if (round % 3 == 0)
-                takeTurn(round);
+            takeTurn(round);
             applyPoison();
-            printf("Enemy %s\n", enemy->name);
-            printf("Enemy's health : %d\n", enemy->health);
-            printf("\n-----------------------------------------------------------------------------------------------------\n\n");
             playerTurn(enemy, round);
             SLEEP(1000 * 2);
             int result = checkCondition();
@@ -681,7 +807,11 @@ void playGame()
                 defeatedEnemy = 1;
                 if (defeatedEnemy == 1)
                 {
-                    printf("Your rizz was approved by %s and it gives you %d aura\n", enemy->name, enemy->scoreObtained);
+                    printChar("Your rizz was approved by ", 20);
+                    printf("%s ", enemy->name);
+                    printChar("and it gives you ", 20); 
+                    printf("%d ", enemy->scoreObtained); 
+                    printChar("aura\n", 20);
                 }
                 break;
             }
@@ -705,7 +835,7 @@ void playGame()
             else if (result == -1)
             {
                 isPlayerDie = 1;
-                if (stop == 0)
+                if (!stop)
                 {
                     deathText();
                 }
@@ -725,34 +855,214 @@ int compare(const void *a, const void *b)
     return ((Person *)b)->score - ((Person *)a)->score;
 }
 
-void leaderboard()
-{
+const char *leaderboardMenu[] = {
+    "Show all user\n",
+    "Search username\n",
+    "Exit\n"
+};
+
+int contains_ignore_case(const char *haystack, const char *needle) {
+    size_t haystack_len = strlen(haystack);
+    size_t needle_len = strlen(needle);
+
+    if (needle_len == 0) {
+        return 1; 
+    }
+
+    for (size_t i = 0; i <= haystack_len - needle_len; i++) {
+        size_t j;
+        for (j = 0; j < needle_len; j++) {
+            if (tolower((unsigned char)haystack[i + j]) != tolower((unsigned char)needle[j])) {
+                break;
+            }
+        }
+        if (j == needle_len) {
+            return 1; 
+        }
+    }
+    return 0; 
+}
+
+void highlight_match(const char *username, const char *searchTerm) {
+    size_t username_len = strlen(username);
+    size_t searchTerm_len = strlen(searchTerm);
+
+    int printed = 0;
+
+    for (size_t i = 0; i < username_len; i++) {
+        int is_match = 1;
+        for (size_t j = 0; j < searchTerm_len && (i + j) < username_len; j++) {
+            if (tolower((unsigned char)username[i + j]) != tolower((unsigned char)searchTerm[j])) {
+                is_match = 0;
+                break;
+            }
+        }
+
+        if (is_match) {
+            printf("\033[1;32m");
+            printf("%.*s", (int)searchTerm_len, username + i);
+            printf("\033[0m");   
+            i += searchTerm_len - 1;
+            printed += searchTerm_len;
+        } else {
+            printf("%c", username[i]);
+            printed++;
+        }
+    }
+
+    for (int i = printed; i < 14; i++) {
+        printf(" ");
+    }
+}
+
+void leaderboard() {
+    int select = 1;
+    int showAll = 0;
+    int t = 0;
     FILE *fp = fopen("scoreboard.save", "r");
-    if (fp == NULL)
-    {
+    if (fp == NULL) {
+        clearScreen();
         printf("Leaderboard empty. No one has played yet :(\n");
+        getchar();
+        freopen("scoreboard.save", "w", stdout);
+        fclose(fp);
         return;
     }
 
     Person player[500];
     int count = 0;
 
-    puts("==================================================");
-    puts("|                 Scoreboard                    |");
-    puts("==================================================");
-    puts("|   Username   |    Score   |     Difficulty    |");
-    puts("==================================================");
-    while (fscanf(fp, "%[^#]#%d#%s\n", player[count].username, &player[count].score, player[count].diffculty) != EOF)
-    {
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+    if (strlen(line) == 0 || line[0] == '\n') {
+        continue;
+    }
+
+    if (sscanf(line, "%[^#]#%d#%s", player[count].username, &player[count].score, player[count].difficulty) == 3) {
         count++;
     }
-    qsort(player, count, sizeof(Person), compare);
-    for (int i = 0; i < count; i++)
-    {
-        printf("|%-14.14s|%12d|%19s|\n", player[i].username, player[i].score, player[i].diffculty);
-    }
-    puts("===================================================");
+}
+
     fclose(fp);
+    qsort(player, count, sizeof(Person), compare);
+    menuSize = sizeof(leaderboardMenu) / sizeof(leaderboardMenu[0]);
+    do{
+        clearScreen();
+        arrowMenu(leaderboardMenu, &menuSize, select);
+        switch(key()){
+            case 1:
+                select--;
+                if (select < 1) select = menuSize;
+                break;
+            case 2:
+                select++;
+                if (select > menuSize) select = 1;
+                break;
+            case 3:
+                switch(select){
+                    case 1:
+                        showAll = 1;
+                        break;
+                    case 2:
+                        showAll = 0;
+                        break;
+                    case 3:
+                        return;
+                    default:
+                    break;
+                }
+                t = 0;
+                break;
+            default:
+            t = 1;
+            break;
+        }
+    }while (t==1);
+
+    
+    if(showAll){
+        int currentPage = 0;
+        int totalPages = (count + PAGE_SIZE - 1) / PAGE_SIZE; 
+        if (totalPages == 0) totalPages = 1;
+        while (1) {
+        clearScreen();
+        if(count == 0){
+        puts("=================================================");
+        puts("|                 Scoreboard                    |");
+        puts("=================================================");
+        puts("|   Username   |    Score   |     Difficulty    |");
+        puts("=================================================");
+        puts("|               There is no Player              |");
+        }
+        else{
+        puts("=================================================");
+        puts("|                 Scoreboard                    |");
+        puts("=================================================");
+        puts("|   Username   |    Score   |     Difficulty    |");
+        puts("=================================================");
+        }
+        
+
+        int start = currentPage * PAGE_SIZE;
+        int end = start + PAGE_SIZE;
+        if (end > count) {
+            end = count;
+        }
+
+        for (int i = start; i < end; i++) {
+            printf("|%-14.14s|%12d|%19s|\n", player[i].username, player[i].score, player[i].difficulty);
+        }
+
+        puts("=================================================");
+        printf("Page %d/%d. Use Left/Right arrow keys to navigate. Press esc to quit.\n", currentPage + 1 , totalPages);
+
+        char key = getch(); 
+        if (key == ESC) { 
+            break;
+        } 
+        else if (key == LEFT) { 
+            currentPage--;
+            if (currentPage < 1) currentPage = 0;
+        }
+        else if(key == RIGHT) {
+            currentPage++;
+            if (currentPage >= totalPages) currentPage = totalPages-1;
+        }
+        else continue;
+    }
+    }
+    else{
+        char searchTerm[50];
+        printf("Enter username: ");
+        scanf("%s", searchTerm);
+        getchar(); 
+
+        int found = 0;
+
+        puts("");
+        puts("=================================================");
+        puts("|                 Scoreboard                    |");
+        puts("=================================================");
+        puts("|   Username   |    Score   |     Difficulty    |");
+        puts("=================================================");
+
+        
+        for (int i = 0; i < count; i++) {
+            if (contains_ignore_case(player[i].username, searchTerm)) {
+                printf("|");
+                highlight_match(player[i].username, searchTerm);
+                printf("|%12d|%19s|\n", player[i].score, player[i].difficulty);
+                found = 1;
+            }
+        }
+
+        if (!found) {
+            puts("|           Username not found                  |");
+        }
+        puts("=================================================");
+        printf("Press any key to continue\n");
+        getch();
+}
 }
 
 void difficultyInformation()
@@ -777,6 +1087,7 @@ void difficultyInformation()
     printf("- Enemy's attack will be increased by 10%%\n");
     printf("- Enemy's heal will be increased by 10%%\n");
     printf("\n");
+    printChar("Press any key to continue", 10);
 }
 
 void printLogo()
@@ -790,14 +1101,24 @@ void printLogo()
     printf("%s", LOGO);
 }
 
-void menu()
-{
-    printChar("(S)tory mode\n(P)lay game\n"
-              "(L)eaderboard\n"
-              "(D)ifficulty Information\n"
-              "(Q)uit game\n",
-              20);
-}
+
+const char *menu[] = {
+        "   (S)tory mode\n",
+        "   (P)lay game\n",
+        "   (L)eaderboard\n",
+        "   (D)ifficulty Information\n",
+        "   (Q)uit game\n"
+};
+
+const char *menu2[] = {
+        "(S)tory mode\n",
+        "(P)lay game\n",
+        "(L)eaderboard\n",
+        "(D)ifficulty Information\n",
+        "(Q)uit game\n"
+};
+
+
 
 void storyMode()
 {
@@ -824,14 +1145,11 @@ void storyMode()
     resetPlayer();
     while (defeatedEnemy != 1)
     {
-        SLEEP(1000 * 2);
+        SLEEP(1000);
         clearScreen();
         if (round % 3 == 0)
             takeTurn(round);
         applyPoison();
-        printf("Enemy %s\n", enemy->name);
-        printf("Enemy's health : %d\n", enemy->health);
-        printf("\n-----------------------------------------------------------------------------------------------------\n\n");
         playerTurn(enemy, round);
         SLEEP(1000 * 2);
         int result = checkCondition();
@@ -868,7 +1186,9 @@ void storyMode()
     }
     if (isPlayerDie == 1)
     {
-        deathText();
+        if(!stop){
+            deathText();
+        }
         return;
     }
     clearScreen();
@@ -884,17 +1204,18 @@ void storyMode()
     printChar("Fight 2 with ngamutron\n", 50);
     fflush(stdout);
     defeatedEnemy = 0;
-    generateEnemy(2);
+    generateEnemy(3);
     round = 1;
     resetPlayer();
     turn = 1;
     while (defeatedEnemy != 1)
     {
-        SLEEP(1000 * 2);
+        SLEEP(1000);
         clearScreen();
         if (round % 3 == 0)
             takeTurn(round);
         applyPoison();
+        playerTurn(enemy, round);
         int result = checkCondition();
         // Checking
         if (result == 1)
@@ -907,9 +1228,6 @@ void storyMode()
             isPlayerDie = 1;
             break;
         }
-        printf("Enemy %s\n", enemy->name);
-        printf("Enemy's health : %d\n", enemy->health);
-        printf("\n-----------------------------------------------------------------------------------------------------\n\n");
         playerTurn(enemy, round);
         SLEEP(1000 * 2);
         result = checkCondition();
@@ -946,7 +1264,9 @@ void storyMode()
     }
     if (isPlayerDie == 1)
     {
-        deathText();
+        if(!stop){
+            deathText();
+        }
         return;
     }
     clearScreen();
@@ -966,7 +1286,7 @@ void storyMode()
     printChar("Rusdi yang sangat marah pun langsung bertarung dengannya.ˮ\n", 80);
     getchar();
     clearScreen();
-    printChar("Fight 3 with ngamutron\n", 50);
+    printChar("Fight 3 with gambatron\n", 50);
     getchar();
     fflush(stdout);
     defeatedEnemy = 0;
@@ -976,14 +1296,11 @@ void storyMode()
     resetPlayer();
     while (defeatedEnemy != 1)
     {
-        SLEEP(1000 * 2);
+        SLEEP(1000);
         clearScreen();
         if (round % 3 == 0)
             takeTurn(round);
         applyPoison();
-        printf("Enemy %s\n", enemy->name);
-        printf("Enemy's health : %d\n", enemy->health);
-        printf("\n-----------------------------------------------------------------------------------------------------\n\n");
         playerTurn(enemy, round);
         SLEEP(1000 * 2);
         int result = checkCondition();
@@ -1020,7 +1337,9 @@ void storyMode()
     }
     if (isPlayerDie == 1)
     {
-        deathText();
+        if(!stop){
+            deathText();
+        }
         return;
     }
     clearScreen();
@@ -1039,45 +1358,59 @@ int main()
 {
     user = (Person *)malloc(sizeof(Person));
     enemy = (Enemy *)malloc(sizeof(Enemy));
-    char confirmation;
-
+    int t = 0;
+    int select = 1;
+    clearScreen();
+     menuSize = sizeof(menu) / sizeof(menu[0]);
+    printLogo();
+    for(int i = 0; i<menuSize; i++){
+        printChar(menu[i], 20);
+    }
     do
-    {
+    {   
+        menuSize = sizeof(menu) / sizeof(menu[0]);
         clearScreen();
         printLogo();
-        menu();
-        printChar("Enter your choice: ", 10);
-        scanf(" %c", &confirmation);
-        getchar();
-        switch (tolower(confirmation))
-        {
-        case 's':
-            isStoryMode = 1;
-            storyMode();
-            isStoryMode = 0;
-            break;
-        case 'p':
-            playGame();
-            stop = 0;
-            break;
-        case 'l':
-            clearScreen();
-            leaderboard();
-            puts("Press any key to continue...");
-            getchar();
-            break;
-        case 'd':
-            difficultyInformation();
-            puts("Press any key to continue...");
-            getchar();
-            break;
-        case 'q':
-            quitGame();
-            return 0;
-        default:
-            puts("Invalid choice!");
+        arrowMenu(menu2, &menuSize, select);
+        switch(key()){
+            case 1:
+                select--;
+                if (select < 1) select = menuSize;
+                break;
+            case 2:
+                select++;
+                if (select > menuSize) select = 1;
+                break;
+            case 3:
+                switch(select){
+                    case 1:
+                        modeStory = 1;
+                        storyMode();
+                        modeStory = 0;
+                        break;
+                    case 2:
+                        strcpy(user->username, " ");
+                        playGame();
+                        break;
+                    case 3:
+                        leaderboard();
+                        break;
+                    case 4:
+                        difficultyInformation();
+                        getch();
+                        break;
+                    case 5:
+                        quitGame();
+                        return 0;
+                }
+                break;
+            case 0:
+                continue;
+            default:
+                t = 1;
+                break;
         }
-    } while (confirmation != 'q');
+    } while (t != 1);
     // free memory
     freeMemory();
     return 0;
