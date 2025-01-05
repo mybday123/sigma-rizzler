@@ -439,13 +439,13 @@ void getPlayerName()
             printChar("Hey, you're so skibidi, can i get your name ?\n", 50);
             break;
         case 2:
-            printf("Hey, you're more skibidii than i think, so i need your name!\n", 50);
+            printChar("Hey, you're more skibidii than i think, so i need your name!\n", 50);
             break;
         case 3:
-            printf("HEYY, I NEED YOUR NAME PLEASE \?\?!?!\n", 50);
+            printChar("HEYY, I NEED YOUR NAME PLEASE \?\?!?!\n", 50);
             break;
         default:
-            printf("To be honest, i really need your name, so please!!\n", 50);
+            printChar("To be honest, i really need your name, so please!!\n", 50);
             break;
         }
         printf("Your answer (y/n): ");
